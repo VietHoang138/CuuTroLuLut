@@ -544,82 +544,40 @@
         }
       }
     },
-    "/api/PhieuXuat/create": {
-      "post": {
-        "tags": [
-          "PhieuXuat"
-        ],
-        "parameters": [
-          {
-            "name": "maDot",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "diemDen",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "lyDo",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/PhieuXuat/them-chi-tiet": {
-      "post": {
-        "tags": [
-          "PhieuXuat"
-        ],
-        "parameters": [
-          {
-            "name": "maPX",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "maHang",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "soLuong",
-            "in": "query",
-            "schema": {
-              "type": "number",
-              "format": "double"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/api/PhieuXuat": {
       "get": {
         "tags": [
           "PhieuXuat"
         ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "PhieuXuat"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PhieuXuatRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PhieuXuatRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PhieuXuatRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK"
@@ -642,6 +600,47 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/PhieuXuat/{id}/trang-thai": {
+      "patch": {
+        "tags": [
+          "PhieuXuat"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PhieuXuatTrangThaiRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PhieuXuatTrangThaiRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PhieuXuatTrangThaiRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK"
@@ -1217,6 +1216,20 @@
         },
         "additionalProperties": false
       },
+      "ChiTietXuatRequest": {
+        "type": "object",
+        "properties": {
+          "maHang": {
+            "type": "string",
+            "nullable": true
+          },
+          "soLuong": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
       "DotCuuTroRequest": {
         "type": "object",
         "properties": {
@@ -1363,6 +1376,45 @@
         "additionalProperties": false
       },
       "PhieuNhapTrangThaiRequest": {
+        "type": "object",
+        "properties": {
+          "trangThai": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PhieuXuatRequest": {
+        "type": "object",
+        "properties": {
+          "maNguoiLap": {
+            "type": "string",
+            "nullable": true
+          },
+          "maNguoiVanChuyen": {
+            "type": "string",
+            "nullable": true
+          },
+          "maDot": {
+            "type": "string",
+            "nullable": true
+          },
+          "trangThai": {
+            "type": "string",
+            "nullable": true
+          },
+          "chiTiet": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChiTietXuatRequest"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PhieuXuatTrangThaiRequest": {
         "type": "object",
         "properties": {
           "trangThai": {

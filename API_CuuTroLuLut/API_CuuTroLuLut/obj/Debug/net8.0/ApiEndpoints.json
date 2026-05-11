@@ -353,7 +353,23 @@
   },
   {
     "ContainingType": "CuuTroAPI.Controllers.PhieuXuatController",
-    "Method": "GetDetail",
+    "Method": "Create",
+    "RelativePath": "api/PhieuXuat",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "CuuTroAPI.Controllers.PhieuXuatRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.PhieuXuatController",
+    "Method": "GetById",
     "RelativePath": "api/PhieuXuat/{id}",
     "HttpMethod": "GET",
     "IsController": true,
@@ -369,52 +385,21 @@
   },
   {
     "ContainingType": "CuuTroAPI.Controllers.PhieuXuatController",
-    "Method": "CreatePhieuXuat",
-    "RelativePath": "api/PhieuXuat/create",
-    "HttpMethod": "POST",
+    "Method": "UpdateTrangThai",
+    "RelativePath": "api/PhieuXuat/{id}/trang-thai",
+    "HttpMethod": "PATCH",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "maDot",
+        "Name": "id",
         "Type": "System.String",
-        "IsRequired": false
+        "IsRequired": true
       },
       {
-        "Name": "diemDen",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "lyDo",
-        "Type": "System.String",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "CuuTroAPI.Controllers.PhieuXuatController",
-    "Method": "ThemChiTiet",
-    "RelativePath": "api/PhieuXuat/them-chi-tiet",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "maPX",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "maHang",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "soLuong",
-        "Type": "System.Double",
-        "IsRequired": false
+        "Name": "req",
+        "Type": "CuuTroAPI.Controllers.PhieuXuatTrangThaiRequest",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
