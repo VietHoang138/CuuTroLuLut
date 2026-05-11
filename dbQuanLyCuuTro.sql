@@ -175,6 +175,7 @@ CREATE TABLE PhieuXuat(
     MaNguoiVanChuyen VARCHAR(10),
     MaDot VARCHAR(10),
     TrangThai NVARCHAR(50),
+    MaXacNhan VARCHAR(10),
     FOREIGN KEY (MaNguoiLap) REFERENCES NguoiDung(MaNguoiDung),
     FOREIGN KEY (MaNguoiVanChuyen) REFERENCES NguoiDung(MaNguoiDung),
     FOREIGN KEY (MaDot) REFERENCES DotCuuTro(MaDot)
@@ -481,3 +482,14 @@ INSERT INTO LichSuTrangThaiPhieuXuat (MaPhieuXuat, TrangThai) VALUES
 ('PX5',N'Đang vận chuyển')
 
 
+
+-- =========================
+-- MIGRATION: Thêm cột MaXacNhan vào PhieuXuat (chạy 1 lần nếu DB đã tồn tại)
+-- =========================
+IF NOT EXISTS (
+    SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_NAME = 'PhieuXuat' AND COLUMN_NAME = 'MaXacNhan'
+)
+BEGIN
+    ALTER TABLE PhieuXuat ADD MaXacNhan VARCHAR(10) NULL;
+END

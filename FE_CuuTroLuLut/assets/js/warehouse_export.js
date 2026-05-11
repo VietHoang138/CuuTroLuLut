@@ -1,231 +1,411 @@
 document.addEventListener('DOMContentLoaded', () => {
-
-    // Mock Data for Export Shipments
-    let exportData = [
-        {
-            id: 'PX-2024-101',
-            time: '15:00 - Hôm nay',
-            destination: 'UBND Xã Nậm Lúc, Bắc Hà, Lào Cai',
-            driver: { name: 'Tài xế Hoàng', phone: '0905.777.888', plate: '43C-987.65' },
-            items: [
-                { name: 'Gạo tẻ', qty: '200 Bao (1 Tấn)' },
-                { name: 'Nước lọc Aquafina', qty: '100 Lốc' },
-                { name: 'Thuốc men y tế', qty: '5 Thùng' }
-            ],
-            status: 'Chờ Tài Xế Đến'
-        },
-        {
-            id: 'PX-2024-102',
-            time: '16:30 - Hôm nay',
-            destination: 'Nhà thi đấu tỉnh Thái Nguyên',
-            driver: { name: 'Tài xế Minh', phone: '0935.123.456', plate: '43C-111.22' },
-            items: [
-                { name: 'Áo phao', qty: '300 Cái' },
-                { name: 'Đèn pin siêu sáng', qty: '100 Cái' },
-                { name: 'Mì tôm', qty: '50 Thùng' }
-            ],
-            status: 'Chờ Tài Xế Đến'
-        },
-        {
-            id: 'PX-2024-099',
-            time: '08:00 - Sáng nay',
-            destination: 'UBND Xã Phúc Khánh, Bảo Yên',
-            driver: { name: 'Nguyễn Văn Tâm', phone: '0988.666.555', plate: '29C-333.44' },
-            items: [
-                { name: 'Lương khô', qty: '50 Thùng' },
-                { name: 'Nước sạch', qty: '100 Bình 20L' }
-            ],
-            status: 'Đã Xuất Kho'
-        }
-    ];
-
     const tbody = document.querySelector('#exports-table tbody');
     const searchInput = document.getElementById('export-search');
-    let currentProcessingId = null;
 
-    function renderTable(data) {
-        tbody.innerHTML = '';
-        if(data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 2rem;">Không tìm thấy phiếu xuất nào.</td></tr>`;
+    const getAny = (obj, keys, fallback = '') => {
+        if (!obj) return fallback;
+        for (const k of keys) {
+            const v = obj?.[k];
+            if (v !== undefined && v !== null && `${v}` !== '') return v;
+        }
+        return fallback;
+    };
+
+    const escapeHtml = (v) => `${v ?? ''}`
+        .replaceAll('&', '&amp;').replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+
+    let allExports   = [];
+    let allHang      = [];
+    let allCampaigns = [];
+    let currentExportId = null;
+
+    // ─── Render bảng ────────────────────────────────────
+    const renderTable = (list) => {
+        if (!list.length) {
+            tbody.innerHTML = `<tr><td colspan="7" class="loading-cell">Chưa có phiếu xuất nào.</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = list.map(item => {
+            const ma       = getAny(item, ['maPhieuXuat', 'MaPhieuXuat']);
+            const ngay     = getAny(item, ['ngayXuat', 'NgayXuat']);
+            const tenDot   = getAny(item, ['tenDot', 'TenDot'], '—');
+            const taiXe    = getAny(item, ['taiXe', 'TaiXe'], '—');
+            const sdtTaiXe = getAny(item, ['sdtTaiXe', 'SdtTaiXe'], '');
+            const hangHoa  = getAny(item, ['hangHoa', 'HangHoa'], '—');
+            const trangThai = getAny(item, ['trangThai', 'TrangThai'], 'Chờ xuất kho');
+
+            const isDone = trangThai === 'Đã xuất kho';
+            const badge = isDone
+                ? `<span class="status-badge badge-completed"><i class="fa-solid fa-truck-fast"></i> Đã xuất kho</span>`
+                : `<span class="status-badge badge-pending"><i class="fa-solid fa-clock"></i> ${escapeHtml(trangThai)}</span>`;
+
+            const actionBtn = isDone
+                ? `<button class="btn btn-sm" style="background:#e2e8f0;color:#64748b;border:none;cursor:default;">Hoàn Tất</button>`
+                : `<button class="btn-action btn btn-sm" data-action="view" title="Xem & xác nhận xuất"><i class="fa-solid fa-eye"></i> Xuất Hàng</button>`;
+
+            return `
+            <tr data-id="${escapeHtml(ma)}">
+                <td><strong style="color:var(--accent-orange);">${escapeHtml(ma)}</strong></td>
+                <td>${escapeHtml(ngay)}</td>
+                <td style="font-weight:600;">${escapeHtml(tenDot)}</td>
+                <td>
+                    <div style="font-weight:600;">${escapeHtml(taiXe)}</div>
+                    ${sdtTaiXe ? `<div style="font-size:0.8rem;color:var(--text-muted);">${escapeHtml(sdtTaiXe)}</div>` : ''}
+                </td>
+                <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(hangHoa)}">${escapeHtml(hangHoa)}</td>
+                <td>${badge}</td>
+                <td>
+                    <div class="action-buttons">${actionBtn}</div>
+                </td>
+            </tr>`;
+        }).join('');
+    };
+
+    const updateStats = (list) => {
+        const doneToday = list.filter(x => getAny(x, ['trangThai', 'TrangThai']) === 'Đã xuất kho').length;
+        const pending   = list.filter(x => getAny(x, ['trangThai', 'TrangThai']) !== 'Đã xuất kho').length;
+        const el1 = document.querySelector('.stat-card:nth-child(1) .stat-number');
+        const el2 = document.querySelector('.stat-card:nth-child(2) .stat-number');
+        const el3 = document.querySelector('.stat-card:nth-child(3) .stat-number');
+        if (el1) el1.textContent = pending;
+        if (el2) el2.textContent = doneToday;
+        if (el3) el3.textContent = list.length;
+    };
+
+    // ─── Load danh sách phiếu xuất ──────────────────────
+    const loadExports = async () => {
+        tbody.innerHTML = `<tr><td colspan="7" class="loading-cell"><i class="fa-solid fa-circle-notch fa-spin"></i> Đang tải dữ liệu...</td></tr>`;
+        try {
+            const data = await window.CuuTroApi.requestJson('/api/PhieuXuat');
+            allExports = Array.isArray(data) ? data : [];
+            renderTable(allExports);
+            updateStats(allExports);
+        } catch (err) {
+            tbody.innerHTML = `<tr><td colspan="7" class="loading-cell" style="color:#dc2626;">Không tải được dữ liệu. ${escapeHtml(err.message || '')}</td></tr>`;
+        }
+    };
+
+    // ─── Load hàng hóa & đợt cho modal tạo phiếu ───────
+    const loadFormData = async () => {
+        try {
+            const [hangData, dotData] = await Promise.all([
+                window.CuuTroApi.requestJson('/api/HangCuuTro'),
+                window.CuuTroApi.requestJson('/api/DotCuuTro'),
+            ]);
+            allHang      = Array.isArray(hangData) ? hangData : [];
+            allCampaigns = Array.isArray(dotData)  ? dotData  : [];
+
+            const dotSelect = document.getElementById('ce-ma-dot');
+            if (dotSelect) {
+                dotSelect.innerHTML = '<option value="">-- Không gắn với đợt cụ thể --</option>';
+                allCampaigns.forEach(c => {
+                    const id   = getAny(c, ['maDot', 'MaDot']);
+                    const name = getAny(c, ['tenDot', 'TenDot']);
+                    dotSelect.innerHTML += `<option value="${escapeHtml(id)}">${escapeHtml(name)}</option>`;
+                });
+            }
+        } catch (_) {}
+    };
+
+    // ─── Search ─────────────────────────────────────────
+    searchInput?.addEventListener('input', () => {
+        const kw = searchInput.value.toLowerCase().trim();
+        if (!kw) { renderTable(allExports); return; }
+        renderTable(allExports.filter(item =>
+            getAny(item, ['maPhieuXuat', 'MaPhieuXuat']).toLowerCase().includes(kw) ||
+            getAny(item, ['taiXe', 'TaiXe']).toLowerCase().includes(kw) ||
+            getAny(item, ['tenDot', 'TenDot']).toLowerCase().includes(kw)
+        ));
+    });
+
+    // ─── Click "Xuất Hàng" → mở modal xác nhận ──────────
+    tbody.addEventListener('click', async (e) => {
+        const btn = e.target?.closest?.('button[data-action="view"]');
+        if (!btn) return;
+        const id = btn.closest('tr[data-id]')?.getAttribute('data-id') || '';
+        if (!id) return;
+
+        const item = allExports.find(x => getAny(x, ['maPhieuXuat', 'MaPhieuXuat']) === id);
+        if (!item) return;
+        currentExportId = id;
+
+        // Điền thông tin tài xế
+        document.getElementById('modal-driver-name').textContent  = getAny(item, ['taiXe', 'TaiXe'], '—');
+        document.getElementById('modal-driver-phone').textContent = getAny(item, ['sdtTaiXe', 'SdtTaiXe'], '—');
+        document.getElementById('modal-driver-plate').textContent = getAny(item, ['bienSoXe', 'BienSoXe'], '—');
+
+        // Reset checkbox
+        const verifyCheck = document.getElementById('verify-driver-export');
+        if (verifyCheck) verifyCheck.checked = false;
+        document.getElementById('btn-confirm-export').disabled = true;
+
+        // Reset ô OTP
+        const otpInput = document.getElementById('otp-input');
+        if (otpInput) otpInput.value = '';
+        showOtpStatus('none', '');
+
+        // Load chi tiết hàng hóa
+        const goodsList = document.getElementById('modal-goods-list');
+        goodsList.innerHTML = '<li style="color:var(--text-muted);">Đang tải...</li>';
+
+        try {
+            const details = await window.CuuTroApi.requestJson(`/api/PhieuXuat/${encodeURIComponent(id)}`);
+            if (Array.isArray(details) && details.length) {
+                goodsList.innerHTML = details.map((d, i) => {
+                    const ten = getAny(d, ['tenHang', 'TenHang']);
+                    const sl  = getAny(d, ['soLuong', 'SoLuong']);
+                    const dv  = getAny(d, ['donViTinh', 'DonViTinh']);
+                    return `<li class="check-item">
+                        <div style="display:flex;align-items:center;gap:1rem;">
+                            <input type="checkbox" class="custom-checkbox item-checker" id="ex-item-${i}">
+                            <label for="ex-item-${i}" class="item-name">${escapeHtml(ten)}</label>
+                        </div>
+                        <span class="item-qty">${escapeHtml(sl)} ${escapeHtml(dv)}</span>
+                    </li>`;
+                }).join('');
+
+                // Gắn sự kiện checkbox
+                goodsList.querySelectorAll('.item-checker').forEach(cb => {
+                    cb.addEventListener('change', (e) => {
+                        e.target.closest('.check-item').classList.toggle('checked', e.target.checked);
+                        checkExportValidity();
+                    });
+                });
+            } else {
+                goodsList.innerHTML = '<li style="color:var(--text-muted);">Không có chi tiết hàng hóa.</li>';
+            }
+        } catch (_) {
+            goodsList.innerHTML = '<li style="color:#dc2626;">Không tải được chi tiết.</li>';
+        }
+
+        openConfirmModal();
+    });
+
+    function checkExportValidity() {
+        const verifyDriver  = document.getElementById('verify-driver-export')?.checked;
+        const checkers      = [...document.querySelectorAll('.item-checker')];
+        const allChecked    = checkers.length > 0 && checkers.every(c => c.checked);
+        const otpVal        = document.getElementById('otp-input')?.value?.trim() || '';
+        const otpOk         = otpVal.length === 6;
+        document.getElementById('btn-confirm-export').disabled = !(verifyDriver && allChecked && otpOk);
+    }
+
+    // Hiển thị trạng thái ô OTP
+    function showOtpStatus(type, msg) {
+        const icon  = document.getElementById('otp-status-icon');
+        const hint  = document.getElementById('otp-hint');
+        const input = document.getElementById('otp-input');
+        if (!icon || !hint || !input) return;
+
+        if (type === 'ok') {
+            icon.innerHTML  = '<i class="fa-solid fa-circle-check" style="color:#10b981;"></i>';
+            hint.style.color = '#10b981';
+            hint.textContent = 'Mã hợp lệ — đủ 6 ký tự.';
+            input.style.borderColor = '#10b981';
+        } else if (type === 'error') {
+            icon.innerHTML  = '<i class="fa-solid fa-circle-xmark" style="color:#dc2626;"></i>';
+            hint.style.color = '#dc2626';
+            hint.textContent = msg || 'Mã không đúng.';
+            input.style.borderColor = '#dc2626';
+        } else {
+            icon.innerHTML  = '';
+            hint.textContent = '';
+            input.style.borderColor = '';
+        }
+    }
+
+    document.getElementById('verify-driver-export')?.addEventListener('change', checkExportValidity);
+
+    // Validate OTP realtime khi gõ
+    document.getElementById('otp-input')?.addEventListener('input', (e) => {
+        e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        const len = e.target.value.trim().length;
+        if (len === 0)       showOtpStatus('none', '');
+        else if (len < 6)    showOtpStatus('error', `Còn thiếu ${6 - len} ký tự.`);
+        else                 showOtpStatus('ok', '');
+        checkExportValidity();
+    });
+
+    // ─── Nút Xác Nhận Đã Xuất Kho ───────────────────────
+    document.getElementById('btn-confirm-export')?.addEventListener('click', async () => {
+        if (!currentExportId) return;
+
+        const otpInput = document.getElementById('otp-input');
+        const maXacNhan = otpInput?.value?.trim().toUpperCase() || '';
+
+        if (maXacNhan.length !== 6) {
+            otpInput?.focus();
+            showOtpStatus('error', 'Mã xác nhận phải đủ 6 ký tự.');
             return;
         }
 
-        data.forEach(item => {
-            const isPending = item.status === 'Chờ Tài Xế Đến';
-            const statusClass = isPending ? 'badge-pending' : 'badge-completed';
-            const icon = isPending ? 'fa-clock' : 'fa-truck-fast';
-            
-            // Format items string for table view
-            const itemsStr = item.items.map(i => i.name).join(', ');
-            const displayItems = itemsStr.length > 30 ? itemsStr.substring(0, 30) + '...' : itemsStr;
-
-            const actionBtn = isPending 
-                ? `<button class="btn btn-sm btn-action" onclick="openConfirmModal('${item.id}')">Xuất Hàng</button>`
-                : `<button class="btn btn-sm" style="background: #e2e8f0; color: #64748b; border: none; cursor: default;">Hoàn Tất</button>`;
-
-            tbody.innerHTML += `
-                <tr>
-                    <td style="font-weight: 700; color: var(--accent-orange);">${item.id}</td>
-                    <td>${item.time}</td>
-                    <td style="font-weight: 600;">${item.destination}</td>
-                    <td>
-                        <div style="font-weight: 600;">${item.driver.name}</div>
-                        <div style="font-size: 0.85rem; color: var(--text-muted);"><i class="fa-solid fa-truck"></i> ${item.driver.plate}</div>
-                    </td>
-                    <td title="${itemsStr}">${displayItems}</td>
-                    <td>
-                        <span class="status-badge ${statusClass}"><i class="fa-solid ${icon}"></i> ${item.status}</span>
-                    </td>
-                    <td>${actionBtn}</td>
-                </tr>
-            `;
-        });
-    }
-
-    // Initial render
-    setTimeout(() => {
-        renderTable(exportData);
-    }, 500);
-
-    // Search
-    searchInput.addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
-        const filtered = exportData.filter(i => 
-            i.id.toLowerCase().includes(term) || 
-            i.driver.name.toLowerCase().includes(term) ||
-            i.destination.toLowerCase().includes(term)
-        );
-        renderTable(filtered);
-    });
-
-    // -------------------------
-    // Confirm Export Modal Logic
-    // -------------------------
-    window.openConfirmModal = function(id) {
-        currentProcessingId = id;
-        const record = exportData.find(r => r.id === id);
-        
-        // Populate driver info
-        document.getElementById('modal-driver-name').innerText = record.driver.name;
-        document.getElementById('modal-driver-phone').innerText = record.driver.phone;
-        document.getElementById('modal-driver-plate').innerText = record.driver.plate;
-        
-        // Reset checkbox
-        const verifyCheck = document.getElementById('verify-driver-export');
-        verifyCheck.checked = false;
-        
-        // Populate items checklist
-        const ul = document.getElementById('modal-goods-list');
-        ul.innerHTML = '';
-        record.items.forEach((item, index) => {
-            ul.innerHTML += `
-                <li class="check-item">
-                    <div style="display: flex; align-items: center; gap: 1rem;">
-                        <input type="checkbox" class="custom-checkbox item-checker" id="export-item-${index}">
-                        <label for="export-item-${index}" class="item-name">${item.name}</label>
-                    </div>
-                    <span class="item-qty">${item.qty}</span>
-                </li>
-            `;
-        });
-
-        // Add listeners to new checkboxes to enable/disable submit button
-        const allCheckboxes = document.querySelectorAll('.item-checker, #verify-driver-export');
-        allCheckboxes.forEach(cb => {
-            cb.addEventListener('change', checkFormValidity);
-        });
-        
-        // Add style toggle for check-items
-        document.querySelectorAll('.item-checker').forEach(cb => {
-            cb.addEventListener('change', (e) => {
-                if(e.target.checked) {
-                    e.target.closest('.check-item').classList.add('checked');
-                } else {
-                    e.target.closest('.check-item').classList.remove('checked');
-                }
+        const btn = document.getElementById('btn-confirm-export');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Đang xử lý...';
+        try {
+            await window.CuuTroApi.requestJson(`/api/PhieuXuat/${encodeURIComponent(currentExportId)}/trang-thai`, {
+                method: 'PATCH',
+                body: JSON.stringify({ TrangThai: 'Đã xuất kho', MaXacNhan: maXacNhan })
             });
-        });
-
-        checkFormValidity(); // Initial check
-
-        const modal = document.getElementById('confirm-export-modal');
-        modal.style.display = 'flex';
-        setTimeout(() => {
-            modal.style.opacity = '1';
-            modal.querySelector('.modal-content').style.transform = 'scale(1)';
-        }, 10);
-    };
-
-    function checkFormValidity() {
-        const verifyDriver = document.getElementById('verify-driver-export').checked;
-        const itemCheckers = document.querySelectorAll('.item-checker');
-        let allItemsChecked = true;
-        
-        itemCheckers.forEach(cb => {
-            if(!cb.checked) allItemsChecked = false;
-        });
-
-        const btnSubmit = document.getElementById('btn-confirm-export');
-        if(verifyDriver && allItemsChecked && itemCheckers.length > 0) {
-            btnSubmit.disabled = false;
-        } else {
-            btnSubmit.disabled = true;
-        }
-    }
-
-    window.closeConfirmModal = function() {
-        const modal = document.getElementById('confirm-export-modal');
-        modal.style.opacity = '0';
-        modal.querySelector('.modal-content').style.transform = 'scale(0.95)';
-        setTimeout(() => {
-            modal.style.display = 'none';
-            currentProcessingId = null;
-        }, 300);
-    };
-
-    document.getElementById('btn-confirm-export').addEventListener('click', () => {
-        if(currentProcessingId) {
-            // Update mock data
-            const index = exportData.findIndex(i => i.id === currentProcessingId);
-            if(index > -1) {
-                exportData[index].status = 'Đã Xuất Kho';
-            }
-            
-            alert('Xác nhận xuất hàng và bàn giao cho tài xế thành công!');
+            alert(`Xác nhận xuất kho phiếu ${currentExportId} thành công!`);
             closeConfirmModal();
-            renderTable(exportData);
+            currentExportId = null;
+            await loadExports();
+        } catch (err) {
+            // Nếu API trả lỗi mã sai → hiển thị ngay trên ô nhập
+            const msg = err.message || '';
+            if (msg.toLowerCase().includes('mã xác nhận') || msg.toLowerCase().includes('không đúng')) {
+                showOtpStatus('error', msg);
+            } else {
+                alert(`Lỗi: ${msg}`);
+            }
+            btn.disabled = false;
+        } finally {
+            btn.innerHTML = '<i class="fa-solid fa-file-export"></i> Xác Nhận Đã Xuất Kho';
+            checkExportValidity();
         }
     });
 
-    // -------------------------
-    // Create Manual Export Modal
-    // -------------------------
-    window.openCreateExportModal = function() {
-        const modal = document.getElementById('create-export-modal');
+    // ─── Modal helpers ───────────────────────────────────
+    window.openConfirmModal = () => {
+        const modal = document.getElementById('confirm-export-modal');
         modal.style.display = 'flex';
-        setTimeout(() => {
-            modal.style.opacity = '1';
-            modal.querySelector('.modal-content').style.transform = 'scale(1)';
-        }, 10);
+        setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
     };
 
-    window.closeCreateExportModal = function() {
+    window.closeConfirmModal = () => {
+        const modal = document.getElementById('confirm-export-modal');
+        modal.style.opacity = '0';
+        modal.querySelector('.modal-content').style.transform = 'scale(0.95)';
+        setTimeout(() => { modal.style.display = 'none'; }, 300);
+    };
+
+    window.openCreateExportModal = () => {
+        document.getElementById('create-export-form')?.reset();
+        const goodsList = document.getElementById('ce-goods-list');
+        if (goodsList) { goodsList.innerHTML = ''; window.addExportRow(); }
+        const modal = document.getElementById('create-export-modal');
+        modal.style.display = 'flex';
+        setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
+    };
+
+    window.closeCreateExportModal = () => {
         const modal = document.getElementById('create-export-modal');
         modal.style.opacity = '0';
         modal.querySelector('.modal-content').style.transform = 'scale(0.95)';
-        setTimeout(() => {
-            modal.style.display = 'none';
-        }, 300);
+        setTimeout(() => { modal.style.display = 'none'; }, 300);
     };
 
-    window.submitCreateExport = function() {
-        const form = document.getElementById('create-export-form');
-        if(form.checkValidity()) {
-            alert('Tạo lệnh xuất kho thành công!');
-            form.reset();
+    // ─── Thêm / xóa dòng hàng hóa trong modal tạo phiếu ─
+    window.addExportRow = () => {
+        const container = document.getElementById('ce-goods-list');
+        if (!container) return;
+
+        const hangOptions = allHang.map(h => {
+            const ma  = getAny(h, ['maHang', 'MaHang']);
+            const ten = getAny(h, ['tenHang', 'TenHang']);
+            const ton = getAny(h, ['soLuongTon', 'SoLuongTon'], 0);
+            const dv  = getAny(h, ['donViTinh', 'DonViTinh'], '');
+            return `<option value="${escapeHtml(ma)}" data-ton="${ton}">${escapeHtml(ten)} (Tồn: ${ton}${dv ? ' ' + dv : ''})</option>`;
+        }).join('');
+
+        const row = document.createElement('div');
+        row.className = 'goods-row';
+        row.innerHTML = `
+            <div class="goods-row-inner">
+                <div class="form-group goods-col-hang">
+                    <label>Mặt Hàng <span class="required">*</span></label>
+                    <select class="form-control goods-select" required>
+                        <option value="">-- Chọn mặt hàng --</option>
+                        ${hangOptions}
+                    </select>
+                </div>
+                <div class="form-group goods-col-sl">
+                    <label>Số Lượng <span class="required">*</span></label>
+                    <input type="number" class="form-control goods-sl" min="1" step="0.01" placeholder="0" required>
+                </div>
+                <div class="goods-col-remove">
+                    <button type="button" class="btn-remove-row" onclick="removeExportRow(this)" title="Xóa dòng">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        container.appendChild(row);
+    };
+
+    window.removeExportRow = (btn) => {
+        btn.closest('.goods-row')?.remove();
+    };
+
+    // ─── Submit tạo phiếu xuất ───────────────────────────
+    window.submitCreateExport = async () => {
+        const maDot  = document.getElementById('ce-ma-dot')?.value?.trim() || null;
+        const taiXe  = document.getElementById('ce-tai-xe')?.value?.trim() || null;
+        const sdtTaiXe = document.getElementById('ce-sdt-tai-xe')?.value?.trim() || null;
+        const userId = localStorage.getItem('userId') || '';
+
+        if (!userId) { alert('Không xác định được người dùng. Vui lòng đăng nhập lại.'); return; }
+
+        // Thu thập chi tiết hàng hóa
+        const rows = document.querySelectorAll('#ce-goods-list .goods-row');
+        if (!rows.length) { alert('Vui lòng thêm ít nhất 1 mặt hàng.'); return; }
+
+        const chiTiet = [];
+        let hasError = false;
+
+        rows.forEach((row, i) => {
+            const maHang = row.querySelector('.goods-select')?.value?.trim();
+            const sl     = parseFloat(row.querySelector('.goods-sl')?.value) || 0;
+            const ton    = parseFloat(row.querySelector('.goods-select option:checked')?.dataset?.ton || '0');
+
+            if (!maHang) { alert(`Dòng ${i + 1}: Vui lòng chọn mặt hàng.`); hasError = true; return; }
+            if (sl <= 0)  { alert(`Dòng ${i + 1}: Số lượng phải lớn hơn 0.`); hasError = true; return; }
+            if (sl > ton) { alert(`Dòng ${i + 1}: Số lượng xuất (${sl}) vượt quá tồn kho (${ton}).`); hasError = true; return; }
+            chiTiet.push({ MaHang: maHang, SoLuong: sl });
+        });
+
+        if (hasError) return;
+
+        // Ghi chú tài xế vào trường MaNguoiVanChuyen (text) nếu không có mã ND
+        // API nhận MaNguoiVanChuyen là mã người dùng; nếu nhập tay thì để null và lưu vào ghi chú
+        const payload = {
+            MaNguoiLap:       userId,
+            MaNguoiVanChuyen: null,
+            MaDot:            maDot,
+            TrangThai:        'Chờ xuất kho',
+            ChiTiet:          chiTiet,
+            // Thông tin tài xế nhập tay sẽ được lưu vào TrangThai mở rộng (xem note bên dưới)
+        };
+
+        // Vì schema PhieuXuat không có cột tên tài xế tự do, ta ghi vào TrangThai dạng "Chờ xuất kho | Tài xế: X | SĐT: Y"
+        const extras = [taiXe && `Tài xế: ${taiXe}`, sdtTaiXe && `SĐT: ${sdtTaiXe}`].filter(Boolean);
+        if (extras.length) payload.TrangThai = `Chờ xuất kho | ${extras.join(' | ')}`;
+
+        try {
+            await window.CuuTroApi.requestJson('/api/PhieuXuat', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
             closeCreateExportModal();
-        } else {
-            form.reportValidity();
+            document.getElementById('create-export-form').reset();
+            document.getElementById('ce-goods-list').innerHTML = '';
+            await loadExports();
+            alert('Tạo lệnh xuất kho thành công!');
+        } catch (err) {
+            alert(`Lỗi: ${err.message || ''}`);
         }
     };
+
+    // ─── Tên người dùng ──────────────────────────────────
+    const displayUserName = document.getElementById('display-user-name');
+    if (displayUserName) {
+        const name = localStorage.getItem('userName');
+        if (name) displayUserName.textContent = name;
+    }
+
+    // ─── Init ────────────────────────────────────────────
+    loadExports();
+    loadFormData();
 });

@@ -1,200 +1,295 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.Data.SqlClient;
+using System.Collections.Generic;
 
 namespace CuuTroAPI.Controllers
 {
-
     [ApiController]
     [Route("api/[controller]")]
     public class PhieuXuatController : ControllerBase
     {
         private readonly IConfiguration _config;
+        public PhieuXuatController(IConfiguration config) { _config = config; }
 
-        public PhieuXuatController(IConfiguration config)
-        {
-            _config = config;
-        }
-
-        // TẠO PHIẾU XUẤT
-        [Authorize]
-        [HttpPost("create")]
-        public IActionResult CreatePhieuXuat(string maDot, string diemDen, string lyDo)
-        {
-            var userId = User.FindFirst("MaNguoiDung")?.Value;
-
-            string connStr = _config.GetConnectionString("DefaultConnection");
-
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                conn.Open();
-
-                string maPX = "PX" + DateTime.Now.Ticks;
-
-                string sql = @"INSERT INTO PhieuXuat
-                (MaPhieuXuat, NgayXuat, MaNguoiLap, MaDot, DiemDen, LyDoXuat)
-                VALUES (@Ma, GETDATE(), @ND, @Dot, @Den, @LyDo)";
-
-                SqlCommand cmd = new SqlCommand(sql, conn);
-
-                cmd.Parameters.AddWithValue("@Ma", maPX);
-                cmd.Parameters.AddWithValue("@ND", userId);
-                cmd.Parameters.AddWithValue("@Dot", maDot);
-                cmd.Parameters.AddWithValue("@Den", diemDen);
-                cmd.Parameters.AddWithValue("@LyDo", lyDo);
-
-                cmd.ExecuteNonQuery();
-
-                return Ok(new { MaPhieuXuat = maPX });
-            }
-        }
-
-        // THÊM CHI TIẾT XUẤT (TRIGGER CHECK TỒN KHO)
-        [Authorize]
-        [HttpPost("them-chi-tiet")]
-        public IActionResult ThemChiTiet(string maPX, string maHang, double soLuong)
-        {
-            string connStr = _config.GetConnectionString("DefaultConnection");
-
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                conn.Open();
-
-                string maCT = "CTX" + DateTime.Now.Ticks;
-
-                string sql = @"INSERT INTO ChiTietPhieuXuat
-                (MaChiTietPhieuXuat, MaPhieuXuat, MaHang, SoLuong)
-                VALUES (@Ma, @PX, @Hang, @SL)";
-
-                SqlCommand cmd = new SqlCommand(sql, conn);
-
-                cmd.Parameters.AddWithValue("@Ma", maCT);
-                cmd.Parameters.AddWithValue("@PX", maPX);
-                cmd.Parameters.AddWithValue("@Hang", maHang);
-                cmd.Parameters.AddWithValue("@SL", soLuong);
-
-                cmd.ExecuteNonQuery();
-
-                // Nếu không đủ tồn kho:
-                // SQL Trigger sẽ THROW lỗi → API sẽ fail
-
-                return Ok("Xuất hàng thành công");
-            }
-        }
-
-        //Danh sách phiếu xuất của thủ kho
-        [Authorize]
+        // ─────────────────────────────────────────────
+        // GET ALL – danh sách phiếu xuất kèm thông tin
+        // ─────────────────────────────────────────────
         [HttpGet]
         public IActionResult GetAll()
         {
             var list = new List<object>();
-            string connStr = _config.GetConnectionString("DefaultConnection");
+            string connStr = _config.GetConnectionString("DefaultConnection")!;
 
-            using (SqlConnection conn = new SqlConnection(connStr))
+            using var conn = new SqlConnection(connStr);
+            conn.Open();
+
+            string sql = @"
+                SELECT px.MaPhieuXuat,
+                       CONVERT(VARCHAR(16), px.NgayXuat, 120)  AS NgayXuat,
+                       ISNULL(nl.HoTen, '—')                   AS NguoiLap,
+                       px.MaNguoiLap,
+                       ISNULL(vc.HoTen, '—')                   AS TaiXe,
+                       ISNULL(vc.SoDienThoai, '—')             AS SdtTaiXe,
+                       px.MaNguoiVanChuyen,
+                       ISNULL(tx.BienSoXe, '—')                AS BienSoXe,
+                       ISNULL(tx.LoaiXe, '—')                  AS LoaiXe,
+                       ISNULL(d.TenDot, '—')                   AS TenDot,
+                       ISNULL(px.MaDot, '')                    AS MaDot,
+                       ISNULL(px.TrangThai, N'Chờ xuất kho')   AS TrangThai,
+                       ISNULL(px.MaXacNhan, '')                AS MaXacNhan,
+                       ISNULL(
+                           (SELECT STRING_AGG(h.TenHang + ' x' + CAST(CAST(ct.SoLuong AS INT) AS VARCHAR), ', ')
+                            FROM ChiTietPhieuXuat ct
+                            JOIN HangCuuTro h ON h.MaHang = ct.MaHang
+                            WHERE ct.MaPhieuXuat = px.MaPhieuXuat), N'—'
+                       ) AS HangHoa
+                FROM PhieuXuat px
+                LEFT JOIN NguoiDung nl ON px.MaNguoiLap        = nl.MaNguoiDung
+                LEFT JOIN NguoiDung vc ON px.MaNguoiVanChuyen  = vc.MaNguoiDung
+                LEFT JOIN TaiXe     tx ON px.MaNguoiVanChuyen  = tx.MaNguoiDung
+                LEFT JOIN DotCuuTro d  ON px.MaDot             = d.MaDot
+                ORDER BY px.NgayXuat DESC
+            ";
+
+            using var cmd = new SqlCommand(sql, conn);
+            using var r = cmd.ExecuteReader();
+            while (r.Read())
             {
-                conn.Open();
-
-                string sql = @"
-                        SELECT px.MaPhieuXuat, px.NgayXuat, px.TrangThai,
-                               nd.HoTen, d.TenDot
-                        FROM PhieuXuat px
-                        JOIN NguoiDung nd ON px.MaNguoiLap = nd.MaNguoiDung
-                        JOIN DotCuuTro d ON px.MaDot = d.MaDot
-                        ORDER BY px.NgayXuat DESC
-                        ";
-
-                SqlCommand cmd = new SqlCommand(sql, conn);
-                SqlDataReader reader = cmd.ExecuteReader();
-
-                while (reader.Read())
+                list.Add(new
                 {
-                    list.Add(new
-                    {
-                        MaPhieuXuat = reader["MaPhieuXuat"].ToString(),
-                        NgayXuat = reader["NgayXuat"],
-                        TrangThai = reader["TrangThai"].ToString(),
-                        NguoiLap = reader["HoTen"].ToString(),
-                        TenDot = reader["TenDot"].ToString()
-                    });
-                }
+                    MaPhieuXuat      = r["MaPhieuXuat"].ToString(),
+                    NgayXuat         = r["NgayXuat"].ToString(),
+                    NguoiLap         = r["NguoiLap"].ToString(),
+                    MaNguoiLap       = r["MaNguoiLap"].ToString(),
+                    TaiXe            = r["TaiXe"].ToString(),
+                    SdtTaiXe         = r["SdtTaiXe"].ToString(),
+                    MaNguoiVanChuyen = r["MaNguoiVanChuyen"].ToString(),
+                    BienSoXe         = r["BienSoXe"].ToString(),
+                    LoaiXe           = r["LoaiXe"].ToString(),
+                    TenDot           = r["TenDot"].ToString(),
+                    MaDot            = r["MaDot"].ToString(),
+                    TrangThai        = r["TrangThai"].ToString(),
+                    MaXacNhan        = r["MaXacNhan"].ToString(),
+                    HangHoa          = r["HangHoa"].ToString()
+                });
             }
 
-            // trả danh sách cho frontend hiển thị
             return Ok(list);
         }
 
-        // Chi tiết phiếu xuất
-        [Authorize]
+        // ─────────────────────────────────────────────
+        // GET {id} – chi tiết hàng hóa của 1 phiếu
+        // ─────────────────────────────────────────────
         [HttpGet("{id}")]
-        public IActionResult GetDetail(string id)
+        public IActionResult GetById(string id)
         {
-            string connStr = _config.GetConnectionString("DefaultConnection");
+            string connStr = _config.GetConnectionString("DefaultConnection")!;
+            using var conn = new SqlConnection(connStr);
+            conn.Open();
 
-            using (SqlConnection conn = new SqlConnection(connStr))
+            string sql = @"
+                SELECT ct.MaChiTietPhieuXuat, ct.SoLuong,
+                       h.TenHang, h.MaHang,
+                       ISNULL(l.DonViTinh, '') AS DonViTinh
+                FROM ChiTietPhieuXuat ct
+                JOIN HangCuuTro h ON ct.MaHang = h.MaHang
+                LEFT JOIN LoaiHang l ON h.MaLoaiHang = l.MaLoaiHang
+                WHERE ct.MaPhieuXuat = @id
+            ";
+
+            var items = new List<object>();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@id", id);
+            using var r = cmd.ExecuteReader();
+            while (r.Read())
             {
-                conn.Open();
-
-                // lấy thông tin phiếu
-                string sql1 = @"
-                            SELECT px.MaPhieuXuat, px.NgayXuat, px.TrangThai,
-                                   px.DiemDen, px.LyDoXuat,
-                                   nd.HoTen
-                            FROM PhieuXuat px
-                            JOIN NguoiDung nd ON px.MaNguoiLap = nd.MaNguoiDung
-                            WHERE px.MaPhieuXuat = @id
-                            ";
-
-                SqlCommand cmd1 = new SqlCommand(sql1, conn);
-                cmd1.Parameters.AddWithValue("@id", id);
-
-                SqlDataReader reader1 = cmd1.ExecuteReader();
-
-                if (!reader1.Read())
-                    return NotFound("Không tìm thấy");
-
-                var phieu = new
+                items.Add(new
                 {
-                    MaPhieuXuat = reader1["MaPhieuXuat"].ToString(),
-                    NgayXuat = reader1["NgayXuat"],
-                    TrangThai = reader1["TrangThai"].ToString(),
-                    DiemDen = reader1["DiemDen"].ToString(),
-                    LyDo = reader1["LyDoXuat"].ToString(),
-                    NguoiLap = reader1["HoTen"].ToString()
-                };
-
-                reader1.Close();
-
-                // lấy chi tiết hàng
-                string sql2 = @"
-                            SELECT h.TenHang, ct.SoLuong
-                            FROM ChiTietPhieuXuat ct
-                            JOIN HangCuuTro h ON ct.MaHang = h.MaHang
-                            WHERE ct.MaPhieuXuat = @id
-                            ";
-
-                SqlCommand cmd2 = new SqlCommand(sql2, conn);
-                cmd2.Parameters.AddWithValue("@id", id);
-
-                SqlDataReader reader2 = cmd2.ExecuteReader();
-
-                var listHang = new List<object>();
-
-                while (reader2.Read())
-                {
-                    listHang.Add(new
-                    {
-                        TenHang = reader2["TenHang"].ToString(),
-                        SoLuong = reader2["SoLuong"]
-                    });
-                }
-
-                // trả cả thông tin + danh sách hàng
-                return Ok(new
-                {
-                    ThongTin = phieu,
-                    DanhSachHang = listHang
+                    MaChiTiet = r["MaChiTietPhieuXuat"].ToString(),
+                    TenHang   = r["TenHang"].ToString(),
+                    MaHang    = r["MaHang"].ToString(),
+                    DonViTinh = r["DonViTinh"].ToString(),
+                    SoLuong   = r["SoLuong"]
                 });
             }
+
+            return Ok(items);
         }
+
+        // ─────────────────────────────────────────────
+        // POST – Tạo phiếu xuất mới, sinh MaXacNhan
+        // ─────────────────────────────────────────────
+        [HttpPost]
+        public IActionResult Create([FromBody] PhieuXuatRequest req)
+        {
+            if (string.IsNullOrWhiteSpace(req.MaNguoiLap))
+                return BadRequest(new { message = "Thiếu người lập phiếu." });
+
+            if (req.ChiTiet == null || req.ChiTiet.Count == 0)
+                return BadRequest(new { message = "Phiếu xuất phải có ít nhất 1 mặt hàng." });
+
+            string connStr = _config.GetConnectionString("DefaultConnection")!;
+            using var conn = new SqlConnection(connStr);
+            conn.Open();
+            using var tx = conn.BeginTransaction();
+
+            try
+            {
+                string maMoi    = GenerateNextMa(conn, tx);
+                string maXacNhan = GenerateMaXacNhan(); // mã 6 ký tự giao cho tài xế
+
+                // Kiểm tra tồn kho trước khi insert
+                foreach (var ct in req.ChiTiet)
+                {
+                    string sqlTon = "SELECT ISNULL(SoLuongTon, 0) FROM HangCuuTro WHERE MaHang = @Hang";
+                    using var cmdTon = new SqlCommand(sqlTon, conn, tx);
+                    cmdTon.Parameters.AddWithValue("@Hang", ct.MaHang ?? "");
+                    var tonObj = cmdTon.ExecuteScalar();
+                    double ton = tonObj != null && tonObj != DBNull.Value ? Convert.ToDouble(tonObj) : 0;
+                    if (ct.SoLuong > ton)
+                        return BadRequest(new { message = $"Hàng '{ct.MaHang}' không đủ tồn kho (tồn: {ton}, yêu cầu: {ct.SoLuong})." });
+                }
+
+                // Insert phiếu xuất kèm MaXacNhan
+                string sqlPX = @"
+                    INSERT INTO PhieuXuat
+                        (MaPhieuXuat, NgayXuat, MaNguoiLap, MaNguoiVanChuyen, MaDot, TrangThai, MaXacNhan)
+                    VALUES
+                        (@Ma, GETDATE(), @NL, @VC, @Dot, @TT, @MaXN)
+                ";
+                using (var cmdPX = new SqlCommand(sqlPX, conn, tx))
+                {
+                    cmdPX.Parameters.AddWithValue("@Ma",   maMoi);
+                    cmdPX.Parameters.AddWithValue("@NL",   req.MaNguoiLap);
+                    cmdPX.Parameters.AddWithValue("@VC",   NullIfEmpty(req.MaNguoiVanChuyen));
+                    cmdPX.Parameters.AddWithValue("@Dot",  NullIfEmpty(req.MaDot));
+                    cmdPX.Parameters.AddWithValue("@TT",   string.IsNullOrWhiteSpace(req.TrangThai) ? "Chờ xuất kho" : req.TrangThai);
+                    cmdPX.Parameters.AddWithValue("@MaXN", maXacNhan);
+                    cmdPX.ExecuteNonQuery();
+                }
+
+                // Insert chi tiết + trừ tồn kho
+                foreach (var ct in req.ChiTiet)
+                {
+                    string maCT = $"CTX{DateTime.Now.Ticks}{new Random().Next(100)}";
+
+                    string sqlCT = @"
+                        INSERT INTO ChiTietPhieuXuat
+                            (MaChiTietPhieuXuat, MaPhieuXuat, MaHang, SoLuong)
+                        VALUES (@Ma, @PX, @Hang, @SL)
+                    ";
+                    using (var cmdCT = new SqlCommand(sqlCT, conn, tx))
+                    {
+                        cmdCT.Parameters.AddWithValue("@Ma",   maCT);
+                        cmdCT.Parameters.AddWithValue("@PX",   maMoi);
+                        cmdCT.Parameters.AddWithValue("@Hang", ct.MaHang ?? "");
+                        cmdCT.Parameters.AddWithValue("@SL",   ct.SoLuong);
+                        cmdCT.ExecuteNonQuery();
+                    }
+
+                    string sqlTru = "UPDATE HangCuuTro SET SoLuongTon = SoLuongTon - @SL WHERE MaHang = @Hang";
+                    using (var cmdTru = new SqlCommand(sqlTru, conn, tx))
+                    {
+                        cmdTru.Parameters.AddWithValue("@SL",   ct.SoLuong);
+                        cmdTru.Parameters.AddWithValue("@Hang", ct.MaHang ?? "");
+                        cmdTru.ExecuteNonQuery();
+                    }
+                }
+
+                tx.Commit();
+                return Ok(new
+                {
+                    message      = "Tạo phiếu xuất thành công.",
+                    MaPhieuXuat  = maMoi,
+                    MaXacNhan    = maXacNhan   // trả về để hiển thị cho thủ kho giao tài xế
+                });
+            }
+            catch (Exception ex)
+            {
+                tx.Rollback();
+                return StatusCode(500, new { message = $"Lỗi: {ex.Message}" });
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        // PATCH {id}/trang-thai – Xác nhận xuất kho
+        // Yêu cầu MaXacNhan khớp với DB mới cho phép
+        // ─────────────────────────────────────────────
+        [HttpPatch("{id}/trang-thai")]
+        public IActionResult UpdateTrangThai(string id, [FromBody] PhieuXuatTrangThaiRequest req)
+        {
+            if (string.IsNullOrWhiteSpace(req.MaXacNhan))
+                return BadRequest(new { message = "Vui lòng nhập mã xác nhận từ tài xế." });
+
+            string connStr = _config.GetConnectionString("DefaultConnection")!;
+            using var conn = new SqlConnection(connStr);
+            conn.Open();
+
+            // Lấy mã xác nhận đang lưu trong DB
+            string sqlGet = "SELECT ISNULL(MaXacNhan, '') FROM PhieuXuat WHERE MaPhieuXuat = @Ma";
+            using var cmdGet = new SqlCommand(sqlGet, conn);
+            cmdGet.Parameters.AddWithValue("@Ma", id);
+            var dbMaXN = cmdGet.ExecuteScalar()?.ToString() ?? "";
+
+            if (string.IsNullOrWhiteSpace(dbMaXN))
+                return NotFound(new { message = "Không tìm thấy phiếu xuất." });
+
+            if (!string.Equals(dbMaXN.Trim(), req.MaXacNhan.Trim(), StringComparison.OrdinalIgnoreCase))
+                return BadRequest(new { message = "Mã xác nhận không đúng. Vui lòng kiểm tra lại với tài xế." });
+
+            // Mã khớp → cập nhật trạng thái
+            string sqlUpd = "UPDATE PhieuXuat SET TrangThai = @TT WHERE MaPhieuXuat = @Ma";
+            using var cmdUpd = new SqlCommand(sqlUpd, conn);
+            cmdUpd.Parameters.AddWithValue("@Ma", id);
+            cmdUpd.Parameters.AddWithValue("@TT", req.TrangThai ?? "Đã xuất kho");
+            cmdUpd.ExecuteNonQuery();
+
+            return Ok(new { message = "Xác nhận xuất kho thành công." });
+        }
+
+        // ─────────────────────────────────────────────
+        // Helpers
+        // ─────────────────────────────────────────────
+        private static string GenerateNextMa(SqlConnection conn, SqlTransaction tx)
+        {
+            string sql = "SELECT MAX(TRY_CAST(SUBSTRING(MaPhieuXuat, 3, 10) AS INT)) FROM PhieuXuat WHERE MaPhieuXuat LIKE 'PX%'";
+            using var cmd = new SqlCommand(sql, conn, tx);
+            object? r = cmd.ExecuteScalar();
+            int max = (r != null && r != DBNull.Value && int.TryParse(r.ToString(), out int n)) ? n : 0;
+            return $"PX{max + 1}";
+        }
+
+        /// <summary>Sinh mã xác nhận 6 ký tự chữ hoa + số, dễ đọc, không nhầm lẫn.</summary>
+        private static string GenerateMaXacNhan()
+        {
+            const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // bỏ 0/O, 1/I dễ nhầm
+            var rng = new Random();
+            return new string(Enumerable.Range(0, 6).Select(_ => chars[rng.Next(chars.Length)]).ToArray());
+        }
+
+        private static object NullIfEmpty(string? v) =>
+            string.IsNullOrWhiteSpace(v) ? DBNull.Value : (object)v;
+    }
+
+    // ─── Request models ───────────────────────────────
+    public class PhieuXuatRequest
+    {
+        public string? MaNguoiLap        { get; set; }
+        public string? MaNguoiVanChuyen  { get; set; }
+        public string? MaDot             { get; set; }
+        public string? TrangThai         { get; set; }
+        public List<ChiTietXuatRequest>? ChiTiet { get; set; }
+    }
+
+    public class ChiTietXuatRequest
+    {
+        public string? MaHang  { get; set; }
+        public double  SoLuong { get; set; }
+    }
+
+    public class PhieuXuatTrangThaiRequest
+    {
+        public string? TrangThai  { get; set; }
+        public string? MaXacNhan  { get; set; }
     }
 }
