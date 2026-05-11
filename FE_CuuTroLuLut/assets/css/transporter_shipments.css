@@ -282,3 +282,103 @@
         flex: auto;
     }
 }
+
+/* ===== Nút Chi Tiết ===== */
+.btn-detail {
+    background: #f1f5f9;
+    color: var(--text-base);
+    border: 1px solid var(--border-color);
+    padding: 0.65rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+.btn-detail:hover {
+    background: #e2e8f0;
+    border-color: #94a3b8;
+}
+
+/* ===== Panel chi tiết hàng hóa ===== */
+.shipment-detail-panel {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+    margin-top: -1rem;
+    padding: 1.25rem 1.5rem;
+}
+
+.detail-panel-inner {
+    color: var(--text-muted);
+}
+
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.detail-table th {
+    background: #e2e8f0;
+    padding: 0.6rem 1rem;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.detail-table td {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    color: var(--text-base);
+}
+
+.detail-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ===== Status badge nhỏ ===== */
+.status-badge-sm {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: #fef3c7;
+    color: #92400e;
+}
+
+/* ===== Modal summary rows ===== */
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 0.9rem;
+    gap: 1rem;
+}
+
+.summary-row:last-child {
+    border-bottom: none;
+}
+
+.summary-row span:first-child {
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.summary-row strong, .summary-row span:last-child {
+    text-align: right;
+    color: var(--text-dark);
+}

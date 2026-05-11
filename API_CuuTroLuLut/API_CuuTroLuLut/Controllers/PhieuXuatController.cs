@@ -12,6 +12,163 @@ namespace CuuTroAPI.Controllers
         public PhieuXuatController(IConfiguration config) { _config = config; }
 
         // ─────────────────────────────────────────────
+        // GET cho-nhan – Phiếu chưa có tài xế (tài xế xem để nhận)
+        // ─────────────────────────────────────────────
+        [HttpGet("cho-nhan")]
+        public IActionResult GetChoNhan()
+        {
+            var list = new List<object>();
+            string connStr = _config.GetConnectionString("DefaultConnection")!;
+            using var conn = new SqlConnection(connStr);
+            conn.Open();
+
+            string sql = @"
+                SELECT px.MaPhieuXuat,
+                       CONVERT(VARCHAR(16), px.NgayXuat, 120)  AS NgayXuat,
+                       ISNULL(nl.HoTen, '—')                   AS NguoiLap,
+                       ISNULL(nl.SoDienThoai, '—')             AS SdtNguoiLap,
+                       ISNULL(d.TenDot, '—')                   AS TenDot,
+                       ISNULL(px.MaDot, '')                    AS MaDot,
+                       ISNULL(px.TrangThai, N'Chờ xuất kho')   AS TrangThai,
+                       ISNULL(
+                           (SELECT STRING_AGG(h.TenHang + ' x' + CAST(CAST(ct.SoLuong AS INT) AS VARCHAR), ', ')
+                            FROM ChiTietPhieuXuat ct
+                            JOIN HangCuuTro h ON h.MaHang = ct.MaHang
+                            WHERE ct.MaPhieuXuat = px.MaPhieuXuat), N'—'
+                       ) AS HangHoa,
+                       ISNULL(
+                           (SELECT SUM(ct.SoLuong)
+                            FROM ChiTietPhieuXuat ct
+                            WHERE ct.MaPhieuXuat = px.MaPhieuXuat), 0
+                       ) AS TongSoLuong
+                FROM PhieuXuat px
+                LEFT JOIN NguoiDung nl ON px.MaNguoiLap = nl.MaNguoiDung
+                LEFT JOIN DotCuuTro d  ON px.MaDot      = d.MaDot
+                WHERE px.MaNguoiVanChuyen IS NULL
+                  AND ISNULL(px.TrangThai, '') NOT IN (N'Đã xuất kho', N'Đã hoàn thành')
+                  AND ISNULL(px.TrangThai, '') NOT LIKE N'Đang vận chuyển%'
+                ORDER BY px.NgayXuat DESC
+            ";
+
+            using var cmd = new SqlCommand(sql, conn);
+            using var r = cmd.ExecuteReader();
+            while (r.Read())
+            {
+                list.Add(new
+                {
+                    MaPhieuXuat  = r["MaPhieuXuat"].ToString(),
+                    NgayXuat     = r["NgayXuat"].ToString(),
+                    NguoiLap     = r["NguoiLap"].ToString(),
+                    SdtNguoiLap  = r["SdtNguoiLap"].ToString(),
+                    TenDot       = r["TenDot"].ToString(),
+                    MaDot        = r["MaDot"].ToString(),
+                    TrangThai    = r["TrangThai"].ToString(),
+                    HangHoa      = r["HangHoa"].ToString(),
+                    TongSoLuong  = r["TongSoLuong"]
+                });
+            }
+
+            return Ok(list);
+        }
+
+        // ─────────────────────────────────────────────
+        // GET tai-xe/{maNguoiDung} – Phiếu của tài xế cụ thể
+        // ─────────────────────────────────────────────
+        [HttpGet("tai-xe/{maNguoiDung}")]
+        public IActionResult GetByTaiXe(string maNguoiDung)
+        {
+            var list = new List<object>();
+            string connStr = _config.GetConnectionString("DefaultConnection")!;
+            using var conn = new SqlConnection(connStr);
+            conn.Open();
+
+            string sql = @"
+                SELECT px.MaPhieuXuat,
+                       CONVERT(VARCHAR(16), px.NgayXuat, 120)  AS NgayXuat,
+                       ISNULL(nl.HoTen, '—')                   AS NguoiLap,
+                       ISNULL(nl.SoDienThoai, '—')             AS SdtNguoiLap,
+                       ISNULL(d.TenDot, '—')                   AS TenDot,
+                       ISNULL(px.MaDot, '')                    AS MaDot,
+                       ISNULL(px.TrangThai, N'Chờ xuất kho')   AS TrangThai,
+                       ISNULL(
+                           (SELECT STRING_AGG(h.TenHang + ' x' + CAST(CAST(ct.SoLuong AS INT) AS VARCHAR), ', ')
+                            FROM ChiTietPhieuXuat ct
+                            JOIN HangCuuTro h ON h.MaHang = ct.MaHang
+                            WHERE ct.MaPhieuXuat = px.MaPhieuXuat), N'—'
+                       ) AS HangHoa,
+                       ISNULL(
+                           (SELECT SUM(ct.SoLuong)
+                            FROM ChiTietPhieuXuat ct
+                            WHERE ct.MaPhieuXuat = px.MaPhieuXuat), 0
+                       ) AS TongSoLuong
+                FROM PhieuXuat px
+                LEFT JOIN NguoiDung nl ON px.MaNguoiLap = nl.MaNguoiDung
+                LEFT JOIN DotCuuTro d  ON px.MaDot      = d.MaDot
+                WHERE px.MaNguoiVanChuyen = @MaND
+                ORDER BY px.NgayXuat DESC
+            ";
+
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@MaND", maNguoiDung);
+            using var r = cmd.ExecuteReader();
+            while (r.Read())
+            {
+                list.Add(new
+                {
+                    MaPhieuXuat  = r["MaPhieuXuat"].ToString(),
+                    NgayXuat     = r["NgayXuat"].ToString(),
+                    NguoiLap     = r["NguoiLap"].ToString(),
+                    SdtNguoiLap  = r["SdtNguoiLap"].ToString(),
+                    TenDot       = r["TenDot"].ToString(),
+                    MaDot        = r["MaDot"].ToString(),
+                    TrangThai    = r["TrangThai"].ToString(),
+                    HangHoa      = r["HangHoa"].ToString(),
+                    TongSoLuong  = r["TongSoLuong"]
+                });
+            }
+
+            return Ok(list);
+        }
+
+        // ─────────────────────────────────────────────
+        // PATCH {id}/nhan-chuyen – Tài xế nhận chuyến
+        // ─────────────────────────────────────────────
+        [HttpPatch("{id}/nhan-chuyen")]
+        public IActionResult NhanChuyen(string id, [FromBody] NhanChuyenRequest req)
+        {
+            if (string.IsNullOrWhiteSpace(req.MaNguoiVanChuyen))
+                return BadRequest(new { message = "Thiếu mã tài xế." });
+
+            string connStr = _config.GetConnectionString("DefaultConnection")!;
+            using var conn = new SqlConnection(connStr);
+            conn.Open();
+
+            // Kiểm tra phiếu còn trống tài xế không
+            string sqlCheck = "SELECT ISNULL(MaNguoiVanChuyen, '') FROM PhieuXuat WHERE MaPhieuXuat = @Ma";
+            using var cmdCheck = new SqlCommand(sqlCheck, conn);
+            cmdCheck.Parameters.AddWithValue("@Ma", id);
+            var existing = cmdCheck.ExecuteScalar()?.ToString() ?? "";
+
+            if (existing == null) return NotFound(new { message = "Không tìm thấy phiếu xuất." });
+            if (!string.IsNullOrWhiteSpace(existing))
+                return Conflict(new { message = "Chuyến hàng này đã có tài xế nhận rồi." });
+
+            // Gán tài xế + cập nhật trạng thái
+            string sqlUpd = @"
+                UPDATE PhieuXuat
+                SET MaNguoiVanChuyen = @VC,
+                    TrangThai = N'Đang vận chuyển'
+                WHERE MaPhieuXuat = @Ma
+            ";
+            using var cmdUpd = new SqlCommand(sqlUpd, conn);
+            cmdUpd.Parameters.AddWithValue("@Ma", id);
+            cmdUpd.Parameters.AddWithValue("@VC", req.MaNguoiVanChuyen);
+            cmdUpd.ExecuteNonQuery();
+
+            return Ok(new { message = "Nhận chuyến thành công." });
+        }
+
+        // ─────────────────────────────────────────────
         // GET ALL – danh sách phiếu xuất kèm thông tin
         // ─────────────────────────────────────────────
         [HttpGet]
@@ -291,5 +448,10 @@ namespace CuuTroAPI.Controllers
     {
         public string? TrangThai  { get; set; }
         public string? MaXacNhan  { get; set; }
+    }
+
+    public class NhanChuyenRequest
+    {
+        public string? MaNguoiVanChuyen { get; set; }
     }
 }
