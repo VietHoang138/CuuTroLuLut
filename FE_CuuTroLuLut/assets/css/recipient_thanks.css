@@ -1,0 +1,52 @@
+/* CSS for Recipient Thanks */
+.thanks-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    padding: 2.5rem;
+    box-shadow: var(--shadow-sm);
+    margin: 0 auto;
+}
+
+.file-upload-wrapper {
+    position: relative;
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 2rem;
+    text-align: center;
+    background-color: var(--bg-color);
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.file-upload-wrapper:hover {
+    border-color: #ec4899;
+    background-color: rgba(236, 72, 153, 0.05);
+}
+
+.file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.file-upload-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+}
+
+.file-upload-text i {
+    font-size: 2rem;
+    color: #cbd5e1;
+}
+
+.file-upload-wrapper:hover .file-upload-text i {
+    color: #ec4899;
+}

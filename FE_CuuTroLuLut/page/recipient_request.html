@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gửi Yêu Cầu Cứu Trợ - Người Nhận</title>
+    <link rel="stylesheet" href="../assets/css/variables.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/recipient_request.css">
+</head>
+<body style="background-color: var(--bg-color);">
+
+    <!-- Top Navbar -->
+    <header class="admin-topbar" style="position: fixed; top: 0; left: 0; right: 0; z-index: 20; background-color: var(--primary-color);">
+        <div class="donor-brand" style="display: flex; align-items: center; gap: 0.75rem; color: white; font-weight: 700; font-size: 1.25rem;">
+            <i class="fa-solid fa-hands-holding-child" style="color: var(--accent-orange);"></i>
+            <span>CỨU TRỢ <span style="color: var(--accent-cyan);">HÒA VANG</span></span>
+        </div>
+        
+        <div class="donor-top-links" style="display: flex; align-items: center; gap: 1.5rem;">
+            <a href="home.html" class="nav-link" style="color: white; text-decoration: none;"><i class="fa-solid fa-house"></i> Trang Chủ</a>
+            <div class="user-badge" style="display: flex; align-items: center; gap: 0.75rem; color: white;">
+                <i class="fa-solid fa-circle-user" style="font-size: 1.5rem; color: var(--accent-orange);"></i>
+                <span id="display-user-name">Nguyễn Văn B</span>
+                <span style="font-size: 0.8rem; color: var(--accent-cyan); border-left: 1px solid rgba(255,255,255,0.3); padding-left: 0.75rem;">Người Nhận</span>
+                <a href="login.html" class="logout-btn" title="Đăng xuất" style="color: white; margin-left: 0.5rem;"><i class="fa-solid fa-right-from-bracket"></i></a>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-layout" style="padding-top: 70px; display: flex; min-height: 100vh;">
+        <!-- Sidebar Menu -->
+        <aside class="admin-sidebar" id="sidebar" style="top: 70px; width: 260px; background-color: white; border-right: 1px solid var(--border-color); position: fixed; bottom: 0; overflow-y: auto;">
+            <div class="sidebar-header" style="background: var(--bg-card); padding: 1.5rem 1rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 1rem;">
+                <div class="admin-avatar" style="width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: rgba(14, 165, 233, 0.1); color: var(--accent-cyan);"><i class="fa-solid fa-house-chimney-crack"></i></div>
+                <div class="admin-info">
+                    <h3 style="color: var(--text-dark); font-size: 1.1rem; margin: 0;">Menu Cứu Trợ</h3>
+                    <p style="color: var(--accent-orange); font-weight: 600; font-size: 0.85rem; margin: 0;">Hỗ trợ người dân</p>
+                </div>
+            </div>
+            <nav class="sidebar-menu" id="recipient-menu" style="padding: 1rem 0;">
+                <a href="recipient_campaigns.html" class="menu-item "><i class="fa-solid fa-layer-group"></i><span>Đợt Cứu Trợ</span></a>
+                <a href="recipient_schedule.html" class="menu-item "><i class="fa-solid fa-calendar-days"></i><span>Lịch Nhận Hỗ Trợ</span></a>
+                <a href="recipient_request.html" class="menu-item active"><i class="fa-solid fa-hand-holding-medical"></i><span>Yêu Cầu Cứu Trợ</span></a>
+                <a href="recipient_thanks.html" class="menu-item "><i class="fa-solid fa-envelope-open-text"></i><span>Gửi Thư Cảm Ơn</span></a>
+                <a href="recipient_profile.html" class="menu-item "><i class="fa-solid fa-user-pen"></i><span>Thông Tin Cá Nhân</span></a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main" style="flex: 1; margin-left: 260px; padding: 2rem; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
+            <div class="content-body">
+                <div class="request-container">
+                    <div class="request-info-panel">
+                        <div class="info-icon">
+                            <i class="fa-solid fa-kit-medical"></i>
+                        </div>
+                        <h2>Hỗ Trợ Khẩn Cấp</h2>
+                        <p>Chúng tôi luôn sát cánh cùng bạn vượt qua khó khăn. Vui lòng cung cấp thông tin chính xác để lực lượng cứu hộ có thể phân bổ nguồn lực kịp thời nhất.</p>
+                        
+                        <div class="hotline-box">
+                            <i class="fa-solid fa-phone-volume"></i>
+                            <div>
+                                <span class="hotline-label">Đường dây nóng 24/7</span>
+                                <span class="hotline-number">1900 1234</span>
+                            </div>
+                        </div>
+
+                        <div class="guidance-list">
+                            <div class="guidance-item">
+                                <i class="fa-solid fa-check"></i>
+                                <span>Giữ bình tĩnh và ở nơi an toàn.</span>
+                            </div>
+                            <div class="guidance-item">
+                                <i class="fa-solid fa-check"></i>
+                                <span>Đảm bảo điện thoại luôn mở để liên lạc.</span>
+                            </div>
+                            <div class="guidance-item">
+                                <i class="fa-solid fa-check"></i>
+                                <span>Ưu tiên người già, trẻ em và phụ nữ.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="request-form-panel">
+                        <div class="panel-header">
+                            <h3>Biểu Mẫu Yêu Cầu</h3>
+                            <p>Điền thông tin thiệt hại và nhu yếu phẩm cần thiết.</p>
+                        </div>
+                        <form id="request-form">
+                            <div class="form-group">
+                                <label class="form-label">Chọn Đợt Cứu Trợ <span class="required">*</span></label>
+                                <div class="select-wrapper">
+                                    <select id="req-campaign" class="form-input custom-select" required>
+                                        <option value="">-- Đang tải danh sách đợt cứu trợ --</option>
+                                    </select>
+                                    <i class="fa-solid fa-chevron-down select-icon"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Mức Độ Thiệt Hại <span class="required">*</span></label>
+                                <div class="severity-cards">
+                                    <label class="severity-card">
+                                        <input type="radio" name="severity" value="Nhe" required>
+                                        <div class="severity-content">
+                                            <i class="fa-solid fa-house-water"></i>
+                                            <span class="severity-title">Thấp</span>
+                                            <span class="severity-desc">Thiệt hại nhẹ</span>
+                                        </div>
+                                    </label>
+                                    <label class="severity-card">
+                                        <input type="radio" name="severity" value="TrungBinh">
+                                        <div class="severity-content">
+                                            <i class="fa-solid fa-house-crack"></i>
+                                            <span class="severity-title">Trung Bình</span>
+                                            <span class="severity-desc">Ngập lụt, mất điện</span>
+                                        </div>
+                                    </label>
+                                    <label class="severity-card high-alert">
+                                        <input type="radio" name="severity" value="Nang">
+                                        <div class="severity-content">
+                                            <i class="fa-solid fa-house-chimney-crack"></i>
+                                            <span class="severity-title">Cao / Khẩn</span>
+                                            <span class="severity-desc">Mất nhà, có thương vong</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Nhu Cầu Hỗ Trợ Chính (Có thể chọn nhiều) <span class="required">*</span></label>
+                                <div class="needs-grid">
+                                    <label class="need-item">
+                                        <input type="checkbox" value="LuongThuc">
+                                        <span class="need-btn"><i class="fa-solid fa-bowl-rice"></i> Lương Thực</span>
+                                    </label>
+                                    <label class="need-item">
+                                        <input type="checkbox" value="NuocSach">
+                                        <span class="need-btn"><i class="fa-solid fa-bottle-water"></i> Nước Sạch</span>
+                                    </label>
+                                    <label class="need-item">
+                                        <input type="checkbox" value="YTe">
+                                        <span class="need-btn"><i class="fa-solid fa-briefcase-medical"></i> Y Tế</span>
+                                    </label>
+                                    <label class="need-item">
+                                        <input type="checkbox" value="QuanAo">
+                                        <span class="need-btn"><i class="fa-solid fa-shirt"></i> Quần Áo</span>
+                                    </label>
+                                    <label class="need-item">
+                                        <input type="checkbox" value="SuaChua">
+                                        <span class="need-btn"><i class="fa-solid fa-hammer"></i> Sửa Chữa</span>
+                                    </label>
+                                    <label class="need-item">
+                                        <input type="checkbox" value="Khac">
+                                        <span class="need-btn"><i class="fa-solid fa-ellipsis"></i> Khác</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Mô tả chi tiết tình hình <span class="required">*</span></label>
+                                <textarea id="req-description" class="form-input styled-textarea" rows="4" placeholder="Ví dụ: Nước ngập ngang hông, nhà có 2 người già và 1 trẻ nhỏ đang cần phao cứu sinh và thức ăn..." required></textarea>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary submit-btn" id="req-submit">
+                                    <span>Gửi Yêu Cầu Khẩn Cấp</span>
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                </button>
+                                <div id="req-msg" class="msg-alert hidden"></div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/recipient_request.js"></script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký - Hệ Thống Quản Lý Cứu Trợ Lũ Lụt</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="../assets/css/variables.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    
+    <link rel="stylesheet" href="../assets/css/register.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="register-page">
+
+    <!-- Header -->
+    <header class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <i class="fa-solid fa-hands-holding-child" style="color: var(--accent-orange); font-size: 1.5rem;"></i>
+                <span style="font-weight: 800; letter-spacing: 0.5px;">CỨU TRỢ <span style="color: var(--accent-cyan);">HÒA VANG</span></span>
+            </div>
+            <nav class="nav-menu">
+                <a href="home.html" class="nav-link">Trang Chủ</a>
+                <a href="#" class="nav-link">Danh Sách Ủng Hộ</a>
+                <a href="#" class="nav-link">Giới Thiệu</a>
+                <div class="nav-auth">
+                    <a href="login.html" class="nav-link"><i class="fa-solid fa-arrow-right-to-bracket"></i> Đăng Nhập</a>
+                    <a href="register.html" class="btn btn-primary" style="padding: 0.5rem 1rem;">Đăng Ký Ngay</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2>Đăng Ký Tài Khoản</h2>
+            </div>
+            <div class="auth-body">
+                <!-- Role Tabs -->
+                <div class="tabs-container">
+                    <button class="tab-btn active">Người Ủng Hộ</button>
+                    <button class="tab-btn">Người Nhận</button>
+                </div>
+
+                <!-- Register Form -->
+                <form id="register-form" action="#" method="POST">
+                    <div class="grid-2-cols" id="common-fields">
+                        <div class="form-group">
+                            <label class="form-label">Họ và tên <span style="color: #dc2626;">*</span></label>
+                            <input type="text" id="full-name" class="form-input" placeholder="Nguyễn Văn A" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Số điện thoại <span style="color: #dc2626;">*</span></label>
+                            <input type="tel" id="phone" class="form-input" placeholder="0912345678" required>
+                        </div>
+                        <div class="form-group" id="email-group">
+                            <label class="form-label">Email <span style="color: #dc2626;">*</span></label>
+                            <input type="email" id="email" class="form-input" placeholder="example@gmail.com" required>
+                        </div>
+                    </div>
+
+                    <div class="grid-2-cols" style="margin-top: 1.25rem;">
+                        <div class="form-group">
+                            <label class="form-label">Mật khẩu <span style="color: #dc2626;">*</span></label>
+                            <div class="form-input-wrapper">
+                                <input type="password" id="password" class="form-input" placeholder="Nhập mật khẩu" required>
+                                <a href="javascript:void(0)" class="password-toggle"><i class="far fa-eye"></i></a>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Xác nhận mật khẩu <span style="color: #dc2626;">*</span></label>
+                            <div class="form-input-wrapper">
+                                <input type="password" id="confirm-password" class="form-input" placeholder="Xác nhận mật khẩu" required>
+                                <a href="javascript:void(0)" class="password-toggle"><i class="far fa-eye"></i></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phần địa chỉ cho Người ủng hộ (Không bắt buộc) -->
+                    <div class="form-group" id="basic-address-group" style="margin-top: 1.25rem;">
+                        <label class="form-label">Địa chỉ cụ thể <span style="color: #6b7280; font-weight: normal; font-size: 0.85em;">(Không bắt buộc)</span></label>
+                        <input type="text" id="basic-address" class="form-input" placeholder="Nhập địa chỉ của bạn (VD: Quận 1, TP HCM)">
+                    </div>
+
+                    <div class="checkbox-group mt-2" style="margin-top: 1.5rem;">
+                        <input type="checkbox" id="terms" required>
+                        <label for="terms">Tôi đồng ý với <a href="#">điều khoản sử dụng</a> và <a href="#">chính sách bảo mật</a></label>
+                    </div>
+
+                    <button type="submit" id="register-submit" class="btn btn-primary btn-block mt-4">Đăng Ký</button>
+                    <p id="register-message" style="margin-top: 0.75rem; font-size: 0.875rem;"></p>
+
+                    <div class="auth-footer">
+                        Đã có tài khoản? <a href="login.html">Đăng nhập</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" style="background-color: var(--primary-color); border-top: 4px solid var(--accent-cyan); color: var(--text-muted); padding: 4rem 0 2rem 0;">
+        <div class="container footer-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;">
+            <div class="footer-col">
+                <h4 style="color: white; margin-bottom: 1.5rem;"><i class="fa-solid fa-hands-holding-child" style="color: var(--accent-orange);"></i> CỨU TRỢ HÒA VANG</h4>
+                <p>Hỗ trợ người dân xã Hòa Vang - Đà Nẵng trong công tác ủng hộ và phân bổ hàng cứu trợ thiên tai trực tuyến.</p>
+            </div>
+            <div class="footer-col">
+                <h4 style="color: white; margin-bottom: 1.5rem;">Liên Hệ Ban Tổ Chức</h4>
+                <p><i class="fas fa-map-marker-alt" style="color: var(--accent-cyan); width: 20px;"></i> Ủy Ban Xã Hòa Vang, Đà Nẵng</p>
+                <p><i class="fas fa-phone-alt" style="color: var(--accent-cyan); width: 20px;"></i> Hotline: 0236 1234 567</p>
+                <p><i class="fas fa-envelope" style="color: var(--accent-cyan); width: 20px;"></i> support@cuutrohoavang.vn</p>
+            </div>
+            <div class="footer-col">
+                <h4 style="color: white; margin-bottom: 1.5rem;">Liên Kết</h4>
+                <ul>
+                    <li><a href="register.html" style="transition: color 0.2s;"><i class="fa-solid fa-angle-right" style="color: var(--accent-orange); margin-right: 0.5rem;"></i> Đăng Ký Tài Khoản</a></li>
+                    <li><a href="#" style="transition: color 0.2s;"><i class="fa-solid fa-angle-right" style="color: var(--accent-orange); margin-right: 0.5rem;"></i> Đăng Nhập Cán Bộ</a></li>
+                    <li><a href="#" style="transition: color 0.2s;"><i class="fa-solid fa-angle-right" style="color: var(--accent-orange); margin-right: 0.5rem;"></i> Quy Chế Hoạt Động</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="container" style="text-align: center; padding-top: 2rem; margin-top: 3rem; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.875rem;">
+            &copy; 2026 Hệ Thống Quản Lý Cứu Trợ Lũ Lụt - Hòa Vang. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/register.js"></script>
+</body>
+</html>

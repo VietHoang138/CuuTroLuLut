@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Người Dùng - Quản Lý Cứu Trợ Lũ Lụt</title>
+    <link rel="stylesheet" href="../assets/css/variables.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="admin-layout">
+    <aside class="admin-sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="admin-avatar"><i class="fa-regular fa-user"></i></div>
+            <div class="admin-info">
+                <h3>Admin</h3>
+                <p>Quản Trị Viên</p>
+            </div>
+        </div>
+        <nav class="sidebar-menu">
+            <a href="admin_NguoiDung.html" class="menu-item active"><i class="fa-solid fa-users"></i><span>Quản Lý Người Dùng</span></a>
+            <a href="admin_villages.html" class="menu-item"><i class="fa-solid fa-map-location-dot"></i><span>Quản Lý Thôn</span></a>
+            <a href="admin_campaigns.html" class="menu-item"><i class="fa-solid fa-layer-group"></i><span>Quản Lý Chiến Dịch</span></a>
+            <a href="admin_donations.html" class="menu-item"><i class="fa-solid fa-hand-holding-heart"></i><span>Danh Sách Ủng Hộ</span></a>
+            <a href="admin_recipients.html" class="menu-item"><i class="fa-solid fa-people-carry-box"></i><span>Danh Sách Người Nhận</span></a>
+            <a href="admin_reports.html" class="menu-item"><i class="fa-solid fa-chart-line"></i><span>Báo Cáo & Thống Kê</span></a>
+            <a href="admin_settings.html" class="menu-item"><i class="fa-solid fa-gear"></i><span>Cài Đặt Hệ Thống</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="login.html" class="menu-item text-red logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Đăng Xuất</span></a>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <header class="admin-topbar">
+            <div class="topbar-left">Hệ Thống Quản Lý Cứu Trợ Lũ Lụt</div>
+            <div class="topbar-right"><span>Xin chào, <strong>Admin</strong></span></div>
+        </header>
+
+        <div class="content-body">
+            <div class="page-title" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;">
+                <div>
+                    <h2>Quản Lý Người Dùng</h2>
+                    <p class="page-subtitle" style="margin-bottom:0;">Theo dõi tài khoản và quyền truy cập trong hệ thống.</p>
+                </div>
+                <button class="btn btn-primary" id="btn-open-user-modal"><i class="fa-solid fa-user-plus"></i> Thêm Người Dùng</button>
+            </div>
+
+            <div class="card-box">
+                <div class="card-header">
+                    <h3>Danh Sách Người Dùng</h3>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Mã Người Dùng</th>
+                                <th>Họ Và Tên</th>
+                                <th>Email</th>
+                                <th>Vai Trò</th>
+                                <th>Trạng Thái</th>
+                                <th style="text-align:right;">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="api-users-table">
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 3rem;">
+                                    <div style="display:inline-block; width: 40px; height: 40px; border: 4px solid var(--border-color); border-top-color: var(--accent-orange); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                                    <p style="margin-top: 1rem; color: var(--text-muted); font-weight: 500;">Đang kết nối API Backend...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Modal: Thêm/Sửa người dùng -->
+            <div class="ct-modal-overlay" id="user-modal-overlay" aria-hidden="true">
+                <div class="ct-modal" role="dialog" aria-modal="true" aria-labelledby="user-modal-title">
+                    <div class="ct-modal-header">
+                        <h3 id="user-modal-title">Thêm Người Dùng</h3>
+                        <button class="ct-modal-close" id="btn-close-user-modal" aria-label="Đóng">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="ct-modal-body">
+                        <form id="user-form">
+                            <input type="hidden" id="user-id" />
+
+                            <div class="form-group">
+                                <label class="form-label" for="user-name">Họ và tên</label>
+                                <input class="form-input" id="user-name" type="text" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="user-email">Email</label>
+                                <input class="form-input" id="user-email" type="email" required />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="user-phone">Số điện thoại</label>
+                                <input class="form-input" id="user-phone" type="text" />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="user-role">Vai trò</label>
+                                <select class="form-input" id="user-role" required>
+                                    <option value="">-- Chọn vai trò --</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group" id="password-group">
+                                <label class="form-label" for="user-password">Mật khẩu</label>
+                                <input class="form-input" id="user-password" type="text" placeholder="Nhập mật khẩu (khi tạo mới)" />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="user-status">Trạng thái</label>
+                                <select class="form-input" id="user-status" required>
+                                    <option value="Hoạt động">Hoạt động</option>
+                                    <option value="Tạm khóa">Tạm khóa</option>
+                                </select>
+                            </div>
+
+                            <div class="ct-modal-actions">
+                                <button class="btn btn-outline" type="button" id="btn-cancel-user">Hủy</button>
+                                <button class="btn btn-primary" type="submit" id="btn-save-user">Lưu</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/users.js"></script>
+</body>
+</html>

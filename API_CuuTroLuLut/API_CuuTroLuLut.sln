@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35818.85 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API_CuuTroLuLut", "API_CuuTroLuLut\API_CuuTroLuLut.csproj", "{B2B96E46-F3FF-480F-8815-B6BFAE88DF88}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B2B96E46-F3FF-480F-8815-B6BFAE88DF88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2B96E46-F3FF-480F-8815-B6BFAE88DF88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2B96E46-F3FF-480F-8815-B6BFAE88DF88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2B96E46-F3FF-480F-8815-B6BFAE88DF88}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BD5DBFF5-B7EF-40DF-9AE6-1548C2C30F0E}
+	EndGlobalSection
+EndGlobal

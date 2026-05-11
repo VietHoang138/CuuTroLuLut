@@ -1,0 +1,94 @@
+/* CSS for Recipient Schedule */
+.schedule-container {
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.schedule-timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.schedule-timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--border-color);
+}
+
+.schedule-item {
+    position: relative;
+    margin-bottom: 2.5rem;
+}
+
+.schedule-item:last-child {
+    margin-bottom: 0;
+}
+
+.schedule-item::before {
+    content: '';
+    position: absolute;
+    left: -2rem;
+    top: 5px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: var(--accent-cyan);
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--accent-cyan);
+    z-index: 1;
+}
+
+.schedule-item.status-done::before {
+    background-color: #16a34a;
+    box-shadow: 0 0 0 2px #16a34a;
+}
+
+.schedule-item.status-upcoming::before {
+    background-color: var(--accent-orange);
+    box-shadow: 0 0 0 2px var(--accent-orange);
+}
+
+.schedule-date {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.schedule-card {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    margin-top: 0.5rem;
+}
+
+.schedule-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.75rem;
+}
+
+.schedule-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+}
+
+.schedule-details i {
+    width: 20px;
+    color: var(--accent-cyan);
+}

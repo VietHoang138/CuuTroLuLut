@@ -1,0 +1,31 @@
+:root {
+  /* Colors inspired by the new image - adapted for Light Mode */
+  --primary-color: #0f172a;      /* Deep Slate / Navy */
+  --primary-light: #1e293b;
+  --accent-orange: #f59e0b;      /* Main Action Orange */
+  --accent-orange-hover: #d97706;
+  --accent-cyan: #0ea5e9;        /* Highlights / Icons */
+  
+  --bg-color: #f8fafc;           /* Light gray background */
+  --bg-card: #ffffff;            /* White card background */
+  
+  --text-dark: #0f172a;
+  --text-base: #334155;
+  --text-muted: #64748b;
+  --text-white: #ffffff;
+  
+  --border-color: #e2e8f0;
+  
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -1px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1);
+  --shadow-glow: 0 0 15px rgba(14, 165, 233, 0.2);       /* Subtle cyan glow for cards */
+  --shadow-orange: 0 4px 14px rgba(245, 158, 11, 0.4);   /* Glow for orange buttons */
+  
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  
+  --font-family: 'Inter', sans-serif;
+}

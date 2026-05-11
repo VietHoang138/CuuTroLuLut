@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cài Đặt Hệ Thống - Quản Lý Cứu Trợ Lũ Lụt</title>
+    <link rel="stylesheet" href="../assets/css/variables.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="admin-layout">
+    <aside class="admin-sidebar" id="sidebar">
+        <div class="sidebar-header"><div class="admin-avatar"><i class="fa-regular fa-user"></i></div><div class="admin-info"><h3>Admin</h3><p>Quản Trị Viên</p></div></div>
+        <nav class="sidebar-menu">
+            <a href="admin_NguoiDung.html" class="menu-item"><i class="fa-solid fa-users"></i><span>Quản Lý Người Dùng</span></a>
+            <a href="admin_villages.html" class="menu-item"><i class="fa-solid fa-map-location-dot"></i><span>Quản Lý Thôn</span></a>
+            <a href="admin_campaigns.html" class="menu-item"><i class="fa-solid fa-layer-group"></i><span>Quản Lý Chiến Dịch</span></a>
+            <a href="admin_donations.html" class="menu-item"><i class="fa-solid fa-hand-holding-heart"></i><span>Danh Sách Ủng Hộ</span></a>
+            <a href="admin_recipients.html" class="menu-item"><i class="fa-solid fa-people-carry-box"></i><span>Danh Sách Người Nhận</span></a>
+            <a href="admin_reports.html" class="menu-item"><i class="fa-solid fa-chart-line"></i><span>Báo Cáo & Thống Kê</span></a>
+            <a href="admin_settings.html" class="menu-item active"><i class="fa-solid fa-gear"></i><span>Cài Đặt Hệ Thống</span></a>
+        </nav>
+    </aside>
+    <main class="admin-main">
+        <header class="admin-topbar"><div class="topbar-left">Hệ Thống Quản Lý Cứu Trợ Lũ Lụt</div><div class="topbar-right"><span>Xin chào, <strong>Admin</strong></span></div></header>
+        <div class="content-body">
+            <div class="page-title"><h2>Cài Đặt Hệ Thống</h2></div>
+            <p class="page-subtitle">Cấu hình thông tin chung, thông báo và phân quyền hệ thống.</p>
+            <div class="card-box">
+                <div class="card-header"><h3>Tùy Chỉnh Chính</h3></div>
+                <div class="card-body">
+                    <div class="form-group"><label class="form-label" for="system-name">Tên hệ thống</label><input id="system-name" class="form-input" type="text" value="Quản Lý Cứu Trợ Lũ Lụt"></div>
+                    <div class="form-group"><label class="form-label" for="support-email">Email hỗ trợ</label><input id="support-email" class="form-input" type="email" value="hotro@cuutrolulut.vn"></div>
+                    <button class="btn btn-primary">Lưu Cài Đặt</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

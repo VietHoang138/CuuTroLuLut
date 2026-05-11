@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Người Ủng Hộ - Quản Lý Cứu Trợ Lũ Lụt</title>
+    <link rel="stylesheet" href="../assets/css/variables.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/donor.css">
+</head>
+<body style="background-color: var(--bg-color);">
+
+    <!-- Top Navbar -->
+    <header class="admin-topbar donor-topbar" style="position: fixed; top: 0; left: 0; right: 0; z-index: 20;">
+        <div class="donor-brand">
+            <i class="fa-solid fa-hands-holding-child" style="color: var(--accent-orange);"></i>
+            <span>CỨU TRỢ <span style="color: var(--accent-cyan);">HÒA VANG</span></span>
+        </div>
+        
+        <div class="donor-top-links">
+            <a href="home.html" class="nav-link"><i class="fa-solid fa-house"></i> Trang Chủ</a>
+            <div class="user-badge">
+                <i class="fa-solid fa-circle-user" style="font-size: 1.5rem; color: var(--accent-orange);"></i>
+                <span id="display-user-name">Nguyễn Văn A</span>
+                <span style="font-size: 0.8rem; color: var(--accent-cyan); border-left: 1px solid rgba(255,255,255,0.3); padding-left: 0.75rem;">Nhà Hảo Tâm</span>
+                <a href="login.html" class="logout-btn" title="Đăng xuất"><i class="fa-solid fa-right-from-bracket"></i></a>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-layout" style="padding-top: 70px;">
+        <!-- Sidebar Menu -->
+        <aside class="admin-sidebar" id="sidebar" style="top: 70px;">
+        <div class="sidebar-header" style="background: var(--bg-card); padding: 1.5rem 1rem;">
+            <div class="admin-avatar" style="background: rgba(245, 158, 11, 0.1); color: var(--accent-orange);"><i class="fa-solid fa-hand-holding-heart"></i></div>
+            <div class="admin-info">
+                <h3 style="color: var(--text-dark);">Menu Ủng Hộ</h3>
+                <p style="color: var(--accent-cyan); font-weight: 600;">Cổng thông tin</p>
+            </div>
+        </div>
+        <nav class="sidebar-menu" id="donor-menu">
+            <a href="donor_register.html" class="menu-item active"><i class="fa-solid fa-box-open"></i><span>Đăng Ký Ủng Hộ</span></a>
+            <a href="donor_campaigns.html" class="menu-item "><i class="fa-solid fa-layer-group"></i><span>Đợt Ủng Hộ</span></a>
+            <a href="donor_history.html" class="menu-item "><i class="fa-solid fa-clock-rotate-left"></i><span>Lịch Sử Đóng Góp</span></a>
+            <a href="donor_notifications.html" class="menu-item "><i class="fa-solid fa-bell"></i><span>Thông Báo</span></a>
+            <a href="donor_guide.html" class="menu-item "><i class="fa-solid fa-circle-info"></i><span>Cách Thức Ủng Hộ</span></a>
+            <a href="donor_profile.html" class="menu-item "><i class="fa-solid fa-user-pen"></i><span>Hồ Sơ Cá Nhân</span></a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <div class="content-body" style="padding: 2rem;">
+            <section id="tab-register" class="tab-content active">
+                <div class="page-title">
+                    <h2>Đăng Ký Ủng Hộ</h2>
+                    <p class="page-subtitle">Đăng ký vật phẩm, nhu yếu phẩm hoặc các suất hỗ trợ tới các đợt cứu trợ hiện hành.</p>
+                </div>
+
+                <div class="donor-card">
+                    <div class="donor-card-header">
+                        <h3 class="donor-card-title">Biểu mẫu quyên góp</h3>
+                    </div>
+                    <form id="donation-form">
+                        <div class="form-group" style="max-width: 50%;">
+                            <label class="form-label">Chọn đợt cứu trợ <span style="color: red;">*</span></label>
+                            <select class="form-input" id="donate-campaign" required>
+                                <option value="">-- Đang tải đợt cứu trợ --</option>
+                            </select>
+                        </div>
+                        
+                        <div id="donation-items-container">
+                            <div class="form-grid donation-item-row" style="align-items: end; border-bottom: 1px dashed #e2e8f0; padding-bottom: 1rem; margin-bottom: 1rem;">
+                                <div class="form-group">
+                                    <label class="form-label">Loại hàng hóa/Suất <span style="color: red;">*</span></label>
+                                    <select class="form-input donate-item" required>
+                                        <option value="">-- Chọn vật phẩm --</option>
+                                        <!-- Render từ API -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Số lượng <span style="color: red;">*</span></label>
+                                    <input type="number" class="form-input donate-qty" min="1" placeholder="Nhập số lượng" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1rem; margin-bottom: 2rem;">
+                            <button type="button" class="btn btn-outline" id="btn-add-item"><i class="fa-solid fa-plus"></i> Thêm vật phẩm khác</button>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Ghi chú thêm (Nếu có)</label>
+                            <textarea class="form-input" rows="3" placeholder="Ví dụ: Áo quần cũ đã được giặt sạch..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; font-size: 1.1rem;"><i class="fa-solid fa-paper-plane"></i> Gửi Đăng Ký</button>
+                        <p id="donation-msg" style="margin-top: 1rem; font-weight: 500;"></p>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </main>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/donor.js"></script>
+</body>
+</html>

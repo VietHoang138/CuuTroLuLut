@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xuất Hàng Cứu Trợ - Nhân Viên Kho</title>
+    <link rel="stylesheet" href="../assets/css/variables.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/warehouse_export.css">
+</head>
+<body style="background-color: var(--bg-color);">
+
+    <!-- Top Navbar -->
+    <header class="admin-topbar" style="position: fixed; top: 0; left: 0; right: 0; z-index: 20; background-color: var(--primary-color);">
+        <div class="donor-brand" style="display: flex; align-items: center; gap: 0.75rem; color: white; font-weight: 700; font-size: 1.25rem;">
+            <i class="fa-solid fa-warehouse" style="color: var(--accent-orange);"></i>
+            <span>KHO VẬN <span style="color: var(--accent-cyan);">HÒA VANG</span></span>
+        </div>
+        
+        <div class="donor-top-links" style="display: flex; align-items: center; gap: 1.5rem;">
+            <a href="home.html" class="nav-link" style="color: white; text-decoration: none;"><i class="fa-solid fa-house"></i> Trang Chủ</a>
+            <div class="user-badge" style="display: flex; align-items: center; gap: 0.75rem; color: white;">
+                <i class="fa-solid fa-circle-user" style="font-size: 1.5rem; color: var(--accent-orange);"></i>
+                <span id="display-user-name">Nguyễn Văn Khoa</span>
+                <span style="font-size: 0.8rem; color: var(--accent-cyan); border-left: 1px solid rgba(255,255,255,0.3); padding-left: 0.75rem;">Nhân Viên Kho</span>
+                <a href="login.html" class="logout-btn" title="Đăng xuất" style="color: white; margin-left: 0.5rem;"><i class="fa-solid fa-right-from-bracket"></i></a>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-layout" style="padding-top: 70px; display: flex; min-height: 100vh;">
+        <!-- Sidebar Menu -->
+        <aside class="admin-sidebar" id="sidebar" style="top: 70px; width: 260px; background-color: white; border-right: 1px solid var(--border-color); position: fixed; bottom: 0; overflow-y: auto;">
+            <div class="sidebar-header" style="background: var(--bg-card); padding: 1.5rem 1rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 1rem;">
+                <div class="admin-avatar" style="width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: rgba(14, 165, 233, 0.1); color: var(--accent-cyan);">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+                <div class="admin-info">
+                    <h3 style="color: var(--text-dark); font-size: 1.1rem; margin: 0;">Quản Lý Kho</h3>
+                    <p style="color: var(--accent-orange); font-weight: 600; font-size: 0.85rem; margin: 0;">Kho Trung Tâm</p>
+                </div>
+            </div>
+            <nav class="sidebar-menu" id="warehouse-menu" style="padding: 1rem 0;">
+                <a href="warehouse_campaigns.html" class="menu-item "><i class="fa-solid fa-layer-group"></i><span>Đợt Ủng Hộ</span></a>
+                <a href="warehouse_import.html" class="menu-item "><i class="fa-solid fa-truck-arrow-right"></i><span>Nhập Hàng Cứu Trợ</span></a>
+                <a href="warehouse_export.html" class="menu-item active"><i class="fa-solid fa-truck-fast"></i><span>Xuất Hàng Cứu Trợ</span></a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main" style="flex: 1; margin-left: 260px; padding: 2.5rem; background: #f8fafc;">
+            <div class="content-body" style="max-width: 1200px; margin: 0 auto;">
+                
+                <div class="page-header" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h1 style="color: var(--text-dark); font-size: 2rem; margin-bottom: 0.5rem;">Quản Lý Xuất Kho</h1>
+                        <p style="color: var(--text-muted); font-size: 1.1rem;">Xác nhận giao hàng cho tài xế để chuyển đến các vùng lũ.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="openCreateExportModal()">
+                            <i class="fa-solid fa-file-export"></i> Tạo Lệnh Xuất Mới
+                        </button>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--accent-orange);">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Chờ Lấy Hàng</h3>
+                            <p class="stat-number">6</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                            <i class="fa-solid fa-clipboard-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Đã Xuất Hôm Nay</h3>
+                            <p class="stat-number">8</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(14, 165, 233, 0.1); color: var(--accent-cyan);">
+                            <i class="fa-solid fa-truck-moving"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Xe Đã Khởi Hành</h3>
+                            <p class="stat-number">15</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h2>Các Chuyến Hàng Cần Xuất</h2>
+                        <div class="search-box">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="export-search" placeholder="Tìm mã phiếu, tên tài xế...">
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="data-table" id="exports-table">
+                            <thead>
+                                <tr>
+                                    <th>Mã Phiếu</th>
+                                    <th>Thời Gian Dự Kiến</th>
+                                    <th>Đích Đến (Vùng Lũ)</th>
+                                    <th>Tài Xế Vận Chuyển</th>
+                                    <th>Hàng Hóa Xuất</th>
+                                    <th>Trạng Thái</th>
+                                    <th>Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be loaded via JS -->
+                                <tr>
+                                    <td colspan="7" class="loading-cell">
+                                        <i class="fa-solid fa-circle-notch fa-spin"></i> Đang tải dữ liệu...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Confirm Export Modal -->
+    <div id="confirm-export-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3 class="modal-title">Xác Nhận Xuất Hàng & Giao Tài Xế</h3>
+                <button class="close-btn" onclick="closeConfirmModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="alert-box info-alert">
+                    <i class="fa-solid fa-circle-info"></i>
+                    Vui lòng kiểm tra kỹ số lượng hàng hóa khi chất lên xe và xác minh đúng tài xế trước khi bấm xác nhận xuất kho.
+                </div>
+
+                <div class="driver-info-box">
+                    <h4><i class="fa-solid fa-id-card"></i> Thông tin tài xế nhận hàng</h4>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Tên tài xế:</label>
+                            <span id="modal-driver-name">Nguyễn Văn B</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Số điện thoại:</label>
+                            <span id="modal-driver-phone">0905.xxx.xxx</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Biển số xe:</label>
+                            <span id="modal-driver-plate">43C-123.45</span>
+                        </div>
+                    </div>
+                    <div class="verification-check">
+                        <input type="checkbox" id="verify-driver-export" class="custom-checkbox">
+                        <label for="verify-driver-export" style="color: #10b981; font-weight: 600;">Đã đối chiếu thông tin tài xế và biển số xe hợp lệ.</label>
+                    </div>
+                </div>
+
+                <div class="goods-checklist" style="margin-top: 1.5rem;">
+                    <h4><i class="fa-solid fa-boxes-stacked"></i> Danh mục hàng xuất kho</h4>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Đánh dấu vào các mặt hàng đã được bốc dỡ lên xe thành công.</p>
+                    
+                    <ul class="checklist-items" id="modal-goods-list">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <label>Chữ ký người nhận (Tùy chọn - Mã xác nhận từ tài xế):</label>
+                    <input type="text" class="form-control" placeholder="Nhập mã OTP/Mã xác nhận tài xế cung cấp">
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn btn-outline" onclick="closeConfirmModal()">Hủy Bỏ</button>
+                <button type="button" class="btn btn-primary" id="btn-confirm-export" disabled>
+                    <i class="fa-solid fa-file-export"></i> Xác Nhận Đã Xuất Kho
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Export Modal (Manual Entry) -->
+    <div id="create-export-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Tạo Lệnh Xuất Kho Mới</h3>
+                <button class="close-btn" onclick="closeCreateExportModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="create-export-form">
+                    <div class="form-group">
+                        <label>Đích Đến (Khu vực nhận cứu trợ)</label>
+                        <input type="text" class="form-control" placeholder="VD: Xã Nậm Lúc, Bắc Hà, Lào Cai" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tài Xế Phụ Trách</label>
+                        <input type="text" class="form-control" placeholder="Tên và SĐT tài xế" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mặt Hàng Cần Xuất</label>
+                        <input type="text" class="form-control" placeholder="VD: 50 thùng mì, 20 hộp thuốc" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Thuộc Chiến Dịch</label>
+                        <select class="form-control" required>
+                            <option value="">-- Chọn chiến dịch --</option>
+                            <option value="CD001">Hỗ trợ khẩn cấp Làng Nủ - Lào Cai</option>
+                            <option value="CD002">Cứu trợ ngập lụt Thái Nguyên</option>
+                            <option value="CD003">Tái thiết nhà cửa sau bão số 3</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-outline" onclick="closeCreateExportModal()">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="submitCreateExport()">Tạo Lệnh</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/warehouse_export.js"></script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Chiến Dịch - Quản Lý Cứu Trợ Lũ Lụt</title>
+    <link rel="stylesheet" href="../assets/css/variables.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="admin-layout">
+    <aside class="admin-sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="admin-avatar"><i class="fa-regular fa-user"></i></div>
+            <div class="admin-info"><h3>Admin</h3><p>Quản Trị Viên</p></div>
+        </div>
+        <nav class="sidebar-menu">
+            <a href="admin_NguoiDung.html" class="menu-item"><i class="fa-solid fa-users"></i><span>Quản Lý Người Dùng</span></a>
+            <a href="admin_villages.html" class="menu-item"><i class="fa-solid fa-map-location-dot"></i><span>Quản Lý Thôn</span></a>
+            <a href="admin_campaigns.html" class="menu-item active"><i class="fa-solid fa-layer-group"></i><span>Quản Lý Chiến Dịch</span></a>
+            <a href="admin_donations.html" class="menu-item"><i class="fa-solid fa-hand-holding-heart"></i><span>Danh Sách Ủng Hộ</span></a>
+            <a href="admin_recipients.html" class="menu-item"><i class="fa-solid fa-people-carry-box"></i><span>Danh Sách Người Nhận</span></a>
+            <a href="admin_reports.html" class="menu-item"><i class="fa-solid fa-chart-line"></i><span>Báo Cáo & Thống Kê</span></a>
+            <a href="admin_settings.html" class="menu-item"><i class="fa-solid fa-gear"></i><span>Cài Đặt Hệ Thống</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="login.html" class="menu-item text-red logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Đăng Xuất</span></a>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <header class="admin-topbar">
+            <div class="topbar-left">Hệ Thống Quản Lý Cứu Trợ Lũ Lụt</div>
+            <div class="topbar-right"><span>Xin chào, <strong id="display-user-name">Admin</strong></span></div>
+        </header>
+
+        <div class="content-body">
+            <div class="page-title" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+                <div>
+                    <h2>Quản Lý Chiến Dịch</h2>
+                    <p class="page-subtitle" style="margin-bottom:0;">Tạo và theo dõi các đợt cứu trợ theo từng chiến dịch.</p>
+                </div>
+                <button class="btn btn-primary" id="btn-open-campaign-modal">
+                    <i class="fa-solid fa-plus"></i> Tạo Chiến Dịch
+                </button>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-cards" style="grid-template-columns:repeat(4,1fr);margin-bottom:1.5rem;">
+                <div class="card-stat bg-light-blue">
+                    <div class="stat-info"><h4>Tổng chiến dịch</h4><div class="number" id="stat-total">—</div></div>
+                    <div class="stat-icon"><i class="fa-solid fa-layer-group"></i></div>
+                </div>
+                <div class="card-stat bg-light-green">
+                    <div class="stat-info"><h4>Đang vận động</h4><div class="number" id="stat-active">—</div></div>
+                    <div class="stat-icon"><i class="fa-solid fa-circle-play"></i></div>
+                </div>
+                <div class="card-stat bg-light-yellow">
+                    <div class="stat-info"><h4>Đang phân bổ</h4><div class="number" id="stat-distributing">—</div></div>
+                    <div class="stat-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+                </div>
+                <div class="card-stat" style="background:#f1f5f9;border-color:#cbd5e1;">
+                    <div class="stat-info"><h4>Đã kết thúc</h4><div class="number" style="color:#64748b;" id="stat-ended">—</div></div>
+                    <div class="stat-icon" style="background:white;color:#64748b;"><i class="fa-solid fa-circle-check"></i></div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="card-box">
+                <div class="card-header"><h3>Danh Sách Chiến Dịch</h3></div>
+                <div style="overflow-x:auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Mã Đợt</th>
+                                <th>Tên Chiến Dịch</th>
+                                <th>Ngày Bắt Đầu</th>
+                                <th>Ngày Kết Thúc</th>
+                                <th>Trạng Thái</th>
+                                <th style="text-align:right;">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="api-campaigns-table">
+                            <tr><td colspan="6" style="text-align:center;padding:3rem;">
+                                <div style="display:inline-block;width:40px;height:40px;border:4px solid var(--border-color);border-top-color:var(--accent-orange);border-radius:50%;animation:spin 1s linear infinite;"></div>
+                                <p style="margin-top:1rem;color:var(--text-muted);">Đang kết nối API...</p>
+                            </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Modal -->
+            <div class="ct-modal-overlay" id="campaign-modal-overlay" aria-hidden="true">
+                <div class="ct-modal" role="dialog" aria-modal="true" aria-labelledby="campaign-modal-title">
+                    <div class="ct-modal-header">
+                        <h3 id="campaign-modal-title">Tạo Chiến Dịch</h3>
+                        <button class="ct-modal-close" id="btn-close-campaign-modal" aria-label="Đóng">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="ct-modal-body">
+                        <form id="campaign-form">
+                            <input type="hidden" id="campaign-id" />
+
+                            <div class="form-group">
+                                <label class="form-label" for="campaign-name">Tên chiến dịch <span style="color:red;">*</span></label>
+                                <input class="form-input" id="campaign-name" type="text" required placeholder="VD: Đợt cứu trợ lũ lụt tháng 10" />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="campaign-desc">Mô tả</label>
+                                <textarea class="form-input" id="campaign-desc" rows="3" placeholder="Mô tả ngắn về chiến dịch..."></textarea>
+                            </div>
+
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                                <div class="form-group">
+                                    <label class="form-label" for="campaign-start">Ngày bắt đầu</label>
+                                    <input class="form-input" id="campaign-start" type="date" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="campaign-end">Ngày kết thúc</label>
+                                    <input class="form-input" id="campaign-end" type="date" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="campaign-status">Trạng thái</label>
+                                <select class="form-input" id="campaign-status">
+                                    <option value="Đang vận động">Đang vận động</option>
+                                    <option value="Đang phân bổ">Đang phân bổ</option>
+                                    <option value="Đã kết thúc">Đã kết thúc</option>
+                                </select>
+                            </div>
+
+                            <div class="ct-modal-actions">
+                                <button class="btn btn-outline" type="button" id="btn-cancel-campaign">Hủy</button>
+                                <button class="btn btn-primary" type="submit" id="btn-save-campaign">Lưu</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/campaigns.js"></script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Chủ - Hệ Thống Quản Lý Cứu Trợ Lũ Lụt</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="../assets/css/variables.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="../assets/css/home.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <i class="fa-solid fa-hands-holding-child" style="color: var(--accent-orange); font-size: 1.5rem;"></i>
+                <span style="font-weight: 800; letter-spacing: 0.5px;">CỨU TRỢ <span style="color: var(--accent-cyan);">HÒA VANG</span></span>
+            </div>
+            <nav class="nav-menu">
+                <a href="home.html" class="nav-link" style="color: var(--accent-cyan);">Trang Chủ</a>
+                <a href="#" class="nav-link">Danh Sách Ủng Hộ</a>
+                <a href="#" class="nav-link">Giới Thiệu</a>
+                <div class="nav-auth">
+                    <a href="login.html" class="nav-link"><i class="fa-solid fa-arrow-right-to-bracket"></i> Đăng Nhập</a>
+                    <a href="register.html" class="btn btn-primary" style="padding: 0.5rem 1rem;">Đăng Ký Ngay</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-bg-glow"></div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge"><i class="fa-solid fa-bolt"></i> Nhanh chóng & Kịp thời</div>
+                <h1 class="hero-title">Đồng Hành Cùng Đồng Bào Vùng Lũ</h1>
+                <p class="hero-subtitle">Hệ thống kết nối trực tuyến hiện đại, minh bạch - giúp chuyển đượchoàn toàn các vật phẩm cứu trợ đến tận tay người dân xã Hòa Vang đang chịu ảnh hưởng thiên tai.</p>
+                <div class="hero-actions">
+                    <a href="register.html" class="btn btn-primary"><i class="fa-solid fa-heart" style="margin-right:0.5rem"></i> Tham Gia Ủng Hộ</a>
+                    <a href="#" class="btn btn-outline" style="border-color: rgba(255,255,255,0.2); color: white; background: rgba(255,255,255,0.05);"><i class="fa-solid fa-list"></i> Xem Xem Chiến Dịch</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dynamic Stats Overlay from API -->
+    <div class="container stats-wrapper">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="api-total-campaigns"><div class="spinner"></div></div>
+                <div class="stat-label">Đợt Cứu Trợ</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="api-total-donors"><div class="spinner"></div></div>
+                <div class="stat-label">Người Đã Ủng Hộ</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="api-total-recipients"><div class="spinner"></div></div>
+                <div class="stat-label">Các Hộ Được Hỗ Trợ</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="api-total-volunteers"><div class="spinner"></div></div>
+                <div class="stat-label">Tình Nguyện Viên</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Tầm Nhìn & <span>Sứ Mệnh</span></h2>
+                <div style="width: 80px; height: 4px; background-color: var(--accent-cyan); margin: 0 auto; border-radius: 2px;"></div>
+                <p style="margin-top: 1.5rem; color: var(--text-muted); max-width: 600px; margin-left: auto; margin-right: auto;">
+                    Đảm bảo mọi nguồn lực cứu trợ đều minh bạch, rõ ràng và được sử dụng với mục đích hiệu quả tốt nhất.
+                </p>
+            </div>
+
+            <div class="feature-grid">
+                <!-- Card 1 -->
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="fa-solid fa-microchip"></i>
+                    </div>
+                    <h3 class="feature-title">Đột Phá Công Nghệ</h3>
+                    <p class="feature-desc">Ứng dụng công nghệ số hóa vào việc thống kê, kho bãi và tự động hoá phân loại đối tượng nhận viện trợ một cách chính xác nhất.</p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="feature-card" style="border-top-color: var(--accent-orange); box-shadow: var(--shadow-md);">
+                    <div class="feature-icon-wrapper" style="background-color: rgba(245, 158, 11, 0.1); color: var(--accent-orange);">
+                        <i class="fa-solid fa-rocket"></i>
+                    </div>
+                    <h3 class="feature-title">Tiên Phong Tốc Độ</h3>
+                    <p class="feature-desc">Triển khai xe hàng tức thì ngay sau khi hệ thống tiếp nhận và xác thực đóng góp từ người dùng trên toàn quốc.</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="fa-solid fa-leaf"></i>
+                    </div>
+                    <h3 class="feature-title">Phát Triển Bền Vững</h3>
+                    <p class="feature-desc">Hướng tới việc xây dựng cơ sở dữ liệu dài hạn để phòng bị cho các đợt thiên tai tương lai ở địa phương kịp thời.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Latest Data Table / Preview List via API -->
+    <section style="background-color: var(--bg-card); padding: 4rem 0;">
+        <div class="container">
+            <div class="cta-banner">
+                <div class="hero-bg-glow" style="right: auto; left: -100px;"></div>
+                <h2 class="cta-title">Hãy Chung Tay Giúp Đỡ Đồng Bào</h2>
+                <p style="max-width: 600px; margin: 0 auto 2rem auto; color: #cbd5e1;">Mọi sự đóng góp của bạn dù nhỏ hay lớn, đều mang ý nghĩa quý báu, tạo nên sự thay đổi bước ngoặt cho cuộc sống của những người đang gặp khó khăn.</p>
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <a href="register.html" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.125rem;"><i class="fa-solid fa-parachute-box" style="margin-right: 0.5rem;"></i> Quyên Góp Vật Phẩm</a>
+                </div>
+            </div>
+            
+            <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 2rem; border-left: 4px solid var(--accent-orange); padding-left: 1rem;">Danh Sách Đợt Cứu Trợ Mới Nhất</h3>
+            <div style="overflow-x: auto; border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="background-color: var(--bg-color); border-bottom: 2px solid var(--border-color);">
+                            <th style="padding: 1.25rem 1.5rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.875rem;">Tên Đợt</th>
+                            <th style="padding: 1.25rem 1.5rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.875rem;">Loại Thiên Tai</th>
+                            <th style="padding: 1.25rem 1.5rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.875rem;">Thời Gian</th>
+                            <th style="padding: 1.25rem 1.5rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.875rem; text-align: right;">Trạng Thái</th>
+                        </tr>
+                    </thead>
+                    <tbody id="api-campaigns-table">
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 2rem;"><div class="spinner"></div> Đang tải dữ liệu API...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" style="background-color: var(--primary-color); border-top: 4px solid var(--accent-cyan); color: var(--text-muted); padding: 4rem 0 2rem 0;">
+        <!-- Code Footer Tương tự cũ -->
+        <div class="container footer-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;">
+            <div class="footer-col">
+                <h4 style="color: white; margin-bottom: 1.5rem;"><i class="fa-solid fa-hands-holding-child" style="color: var(--accent-orange);"></i> CỨU TRỢ HÒA VANG</h4>
+                <p>Hỗ trợ người dân xã Hòa Vang - Đà Nẵng trong công tác ủng hộ và phân bổ hàng cứu trợ thiên tai trực tuyến.</p>
+            </div>
+            <div class="footer-col">
+                <h4 style="color: white; margin-bottom: 1.5rem;">Liên Hệ Ban Tổ Chức</h4>
+                <p><i class="fas fa-map-marker-alt" style="color: var(--accent-cyan); width: 20px;"></i> Ủy Ban Xã Hòa Vang, Đà Nẵng</p>
+                <p><i class="fas fa-phone-alt" style="color: var(--accent-cyan); width: 20px;"></i> Hotline: 0236 1234 567</p>
+                <p><i class="fas fa-envelope" style="color: var(--accent-cyan); width: 20px;"></i> support@cuutrohoavang.vn</p>
+            </div>
+            <div class="footer-col">
+                <h4 style="color: white; margin-bottom: 1.5rem;">Liên Kết</h4>
+                <ul>
+                    <li><a href="register.html" style="transition: color 0.2s;"><i class="fa-solid fa-angle-right" style="color: var(--accent-orange); margin-right: 0.5rem;"></i> Đăng Ký Tài Khoản</a></li>
+                    <li><a href="#" style="transition: color 0.2s;"><i class="fa-solid fa-angle-right" style="color: var(--accent-orange); margin-right: 0.5rem;"></i> Đăng Nhập Cán Bộ</a></li>
+                    <li><a href="#" style="transition: color 0.2s;"><i class="fa-solid fa-angle-right" style="color: var(--accent-orange); margin-right: 0.5rem;"></i> Quy Chế Hoạt Động</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="container" style="text-align: center; padding-top: 2rem; margin-top: 3rem; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.875rem;">
+            &copy; 2026 Hệ Thống Quản Lý Cứu Trợ Lũ Lụt - Hòa Vang. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/home.js"></script>
+</body>
+</html>
