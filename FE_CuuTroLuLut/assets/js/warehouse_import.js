@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let allImports = [];
     let allHang = [];
-    let allUngHo = [];
     let allCampaigns = [];
     let currentImportId = null; // lưu id phiếu đang xem
 
@@ -82,27 +81,78 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Load hàng hóa và đợt cho modal tạo phiếu ---
     const loadFormData = async () => {
         try {
-            const [hangData, dotData, ungHoData] = await Promise.all([
+            const [hangData, dotData] = await Promise.all([
                 window.CuuTroApi.requestJson('/api/HangCuuTro'),
                 window.CuuTroApi.requestJson('/api/DotCuuTro'),
-                window.CuuTroApi.requestJson('/api/UngHo/admin/all')
             ]);
             allHang = Array.isArray(hangData) ? hangData : [];
             allCampaigns = Array.isArray(dotData) ? dotData : [];
-            allUngHo = Array.isArray(ungHoData) ? ungHoData : [];
 
             // Điền dropdown đợt trong modal tạo phiếu
-            const dotSelect = document.querySelector('#create-import-form select');
+            const dotSelect = document.getElementById('ci-ma-dot');
             if (dotSelect) {
-                dotSelect.innerHTML = '<option value="">-- Chọn đợt cứu trợ --</option>';
+                dotSelect.innerHTML = '<option value="">-- Không gắn với đợt cụ thể --</option>';
                 allCampaigns.forEach(c => {
                     const id = getAny(c, ['maDot', 'MaDot']);
                     const name = getAny(c, ['tenDot', 'TenDot']);
                     dotSelect.innerHTML += `<option value="${escapeHtml(id)}">${escapeHtml(name)}</option>`;
                 });
-                dotSelect.innerHTML += '<option value="">Không gắn với đợt cụ thể (Nhập kho dự trữ)</option>';
+            }
+
+            // Thêm 1 dòng hàng hóa mặc định khi mở modal
+            if (document.getElementById('ci-goods-list')?.children.length === 0) {
+                window.addGoodsRow();
             }
         } catch (_) {}
+    };
+
+    // --- Thêm dòng hàng hóa ---
+    window.addGoodsRow = () => {
+        const container = document.getElementById('ci-goods-list');
+        if (!container) return;
+
+        const idx = container.children.length;
+        const hangOptions = allHang.map(h => {
+            const ma = getAny(h, ['maHang', 'MaHang']);
+            const ten = getAny(h, ['tenHang', 'TenHang']);
+            const dv = getAny(h, ['donViTinh', 'DonViTinh'], '');
+            return `<option value="${escapeHtml(ma)}" data-dv="${escapeHtml(dv)}">${escapeHtml(ten)}${dv ? ' (' + dv + ')' : ''}</option>`;
+        }).join('');
+
+        const row = document.createElement('div');
+        row.className = 'goods-row';
+        row.dataset.idx = idx;
+        row.innerHTML = `
+            <div class="goods-row-inner">
+                <div class="form-group goods-col-hang">
+                    <label>Mặt Hàng <span class="required">*</span></label>
+                    <select class="form-control goods-select" required>
+                        <option value="">-- Chọn mặt hàng --</option>
+                        ${hangOptions}
+                    </select>
+                </div>
+                <div class="form-group goods-col-sl">
+                    <label>SL Chứng Từ <span class="required">*</span></label>
+                    <input type="number" class="form-control goods-slct" min="0" step="0.01" placeholder="0" required>
+                </div>
+                <div class="form-group goods-col-sl">
+                    <label>SL Thực Nhập <span class="required">*</span></label>
+                    <input type="number" class="form-control goods-slthuc" min="0" step="0.01" placeholder="0" required>
+                </div>
+                <div class="goods-col-remove">
+                    <button type="button" class="btn-remove-row" onclick="removeGoodsRow(this)" title="Xóa dòng">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        container.appendChild(row);
+    };
+
+    // --- Xóa dòng hàng hóa ---
+    window.removeGoodsRow = (btn) => {
+        const row = btn.closest('.goods-row');
+        if (row) row.remove();
     };
 
     // --- Search ---
@@ -214,6 +264,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.openCreateImportModal = () => {
+        // Reset form và thêm 1 dòng hàng hóa mặc định
+        document.getElementById('create-import-form')?.reset();
+        const goodsList = document.getElementById('ci-goods-list');
+        if (goodsList) {
+            goodsList.innerHTML = '';
+            window.addGoodsRow();
+        }
         const modal = document.getElementById('create-import-modal');
         modal.style.display = 'flex';
         setTimeout(() => { modal.style.opacity = '1'; }, 10);
@@ -226,16 +283,60 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.submitCreateImport = async () => {
-        const form = document.getElementById('create-import-form');
-        const inputs = form.querySelectorAll('input, select');
+        const nguonHang = document.getElementById('ci-nguon-hang')?.value?.trim();
+        const maDot = document.getElementById('ci-ma-dot')?.value?.trim() || null;
+        const taiXe = document.getElementById('ci-tai-xe')?.value?.trim() || null;
+        const sdtTaiXe = document.getElementById('ci-sdt-tai-xe')?.value?.trim() || null;
+        const bienSo = document.getElementById('ci-bien-so')?.value?.trim() || null;
+        const ghiChu = document.getElementById('ci-ghi-chu')?.value?.trim() || null;
         const userId = localStorage.getItem('userId') || '';
+
+        if (!nguonHang) {
+            alert('Vui lòng nhập Nguồn Hàng / Người Ủng Hộ.');
+            return;
+        }
+
+        // Thu thập chi tiết hàng hóa
+        const rows = document.querySelectorAll('#ci-goods-list .goods-row');
+        const chiTiet = [];
+        let hasError = false;
+
+        rows.forEach((row, i) => {
+            const maHang = row.querySelector('.goods-select')?.value?.trim();
+            const slct = parseFloat(row.querySelector('.goods-slct')?.value) || 0;
+            const slthuc = parseFloat(row.querySelector('.goods-slthuc')?.value) || 0;
+
+            if (!maHang) {
+                alert(`Dòng hàng hóa ${i + 1}: Vui lòng chọn mặt hàng.`);
+                hasError = true;
+                return;
+            }
+            if (slct <= 0 || slthuc <= 0) {
+                alert(`Dòng hàng hóa ${i + 1}: Số lượng phải lớn hơn 0.`);
+                hasError = true;
+                return;
+            }
+            chiTiet.push({ MaHang: maHang, SoLuongChungTu: slct, SoLuongThucNhap: slthuc });
+        });
+
+        if (hasError) return;
 
         const payload = {
             MaNguoiDung: userId,
             MaUngHo: null,
-            NguoiVanChuyen: inputs[1]?.value?.trim() || null,
-            ChiTiet: []
+            NguoiVanChuyen: taiXe,
+            NguonHang: nguonHang,
+            TrangThai: 'Chờ xác nhận',
+            ChiTiet: chiTiet
         };
+
+        // Gắn thêm thông tin tài xế / biển số vào NguoiVanChuyen nếu không có mã người dùng
+        // (API hiện dùng MaNguoiDung cho NguoiVanChuyen, nên ta gửi tên + SĐT vào NguonHang mở rộng)
+        // Nếu có biển số / SĐT, đính kèm vào ghi chú NguonHang
+        let nguonFull = nguonHang;
+        const extras = [taiXe && `Tài xế: ${taiXe}`, sdtTaiXe && `SĐT: ${sdtTaiXe}`, bienSo && `BSX: ${bienSo}`, ghiChu].filter(Boolean);
+        if (extras.length) nguonFull += ` | ${extras.join(' | ')}`;
+        payload.NguonHang = nguonFull;
 
         try {
             await window.CuuTroApi.requestJson('/api/PhieuNhap', {
@@ -243,7 +344,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(payload)
             });
             closeCreateImportModal();
-            form.reset();
+            document.getElementById('create-import-form').reset();
+            document.getElementById('ci-goods-list').innerHTML = '';
             await loadImports();
             alert('Tạo phiếu nhập thành công!');
         } catch (err) {
