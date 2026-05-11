@@ -135,6 +135,27 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal-driver-phone').textContent = getAny(item, ['sdtTaiXe', 'SdtTaiXe'], '—');
         document.getElementById('modal-driver-plate').textContent = getAny(item, ['bienSoXe', 'BienSoXe'], '—');
 
+        // Hiển thị mã xác nhận của phiếu này
+        const maXN = getAny(item, ['maXacNhan', 'MaXacNhan'], '');
+        const maBox = document.getElementById('phieu-ma-xacnhan-box');
+        const maVal = document.getElementById('phieu-ma-xacnhan-value');
+        if (maBox && maVal) {
+            if (maXN) {
+                maVal.textContent = maXN;
+                maBox.style.display = 'block';
+            } else {
+                maBox.style.display = 'none';
+            }
+        }
+
+        // Gắn nút copy mã
+        document.getElementById('btn-copy-ma')?.addEventListener('click', () => {
+            navigator.clipboard?.writeText(maXN).then(() => {
+                const btn = document.getElementById('btn-copy-ma');
+                if (btn) { btn.innerHTML = '<i class="fa-solid fa-check"></i>'; setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-copy"></i>'; }, 1500); }
+            });
+        });
+
         // Reset checkbox
         const verifyCheck = document.getElementById('verify-driver-export');
         if (verifyCheck) verifyCheck.checked = false;
@@ -297,6 +318,32 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => { modal.style.display = 'none'; }, 300);
     };
 
+    // ─── Modal mã xác nhận sau khi tạo phiếu ────────────
+    function showMaXacNhanModal(maXN) {
+        const el = document.getElementById('new-ma-xacnhan-value');
+        if (el) el.textContent = maXN || '——';
+        const modal = document.getElementById('ma-xacnhan-modal');
+        if (!modal) return;
+        modal.style.display = 'flex';
+        setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
+    }
+
+    window.closeMaXacNhanModal = () => {
+        const modal = document.getElementById('ma-xacnhan-modal');
+        if (!modal) return;
+        modal.style.opacity = '0';
+        modal.querySelector('.modal-content').style.transform = 'scale(0.95)';
+        setTimeout(() => { modal.style.display = 'none'; }, 300);
+    };
+
+    window.copyNewMa = () => {
+        const val = document.getElementById('new-ma-xacnhan-value')?.textContent || '';
+        navigator.clipboard?.writeText(val).then(() => {
+            const btn = document.getElementById('btn-copy-new-ma');
+            if (btn) { btn.innerHTML = '<i class="fa-solid fa-check"></i> Đã sao chép!'; setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-copy"></i> Sao chép mã'; }, 1500); }
+        });
+    };
+
     // ─── Thêm / xóa dòng hàng hóa trong modal tạo phiếu ─
     window.addExportRow = () => {
         const container = document.getElementById('ce-goods-list');
@@ -384,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (extras.length) payload.TrangThai = `Chờ xuất kho | ${extras.join(' | ')}`;
 
         try {
-            await window.CuuTroApi.requestJson('/api/PhieuXuat', {
+            const result = await window.CuuTroApi.requestJson('/api/PhieuXuat', {
                 method: 'POST',
                 body: JSON.stringify(payload)
             });
@@ -392,7 +439,10 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('create-export-form').reset();
             document.getElementById('ce-goods-list').innerHTML = '';
             await loadExports();
-            alert('Tạo lệnh xuất kho thành công!');
+
+            // Hiển thị modal mã xác nhận
+            const maXN = result?.MaXacNhan || result?.maXacNhan || '';
+            showMaXacNhanModal(maXN);
         } catch (err) {
             alert(`Lỗi: ${err.message || ''}`);
         }

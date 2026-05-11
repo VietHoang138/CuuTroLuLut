@@ -424,12 +424,18 @@ INSERT INTO ChiTietPhieuNhap (MaChiTietPhieuNhap, MaPhieuNhap, MaHang, SoLuongCh
 -- =========================
 -- 15. PhieuXuat
 -- =========================
-INSERT INTO PhieuXuat (MaPhieuXuat, NgayXuat, MaNguoiLap, MaNguoiVanChuyen, MaDot, TrangThai) VALUES
-('PX1',GETDATE(),'ND2','ND4','D1',N'Đang vận chuyển'),
-('PX2',GETDATE(),'ND2','ND4','D2',N'Đang vận chuyển'),
-('PX3',GETDATE(),'ND2','ND4','D3',N'Đang vận chuyển'),
-('PX4',GETDATE(),'ND2','ND4','D4',N'Có vấn đề'),
-('PX5',GETDATE(),'ND2','ND4','D5',N'Đang vận chuyển')
+INSERT INTO PhieuXuat (MaPhieuXuat, NgayXuat, MaNguoiLap, MaNguoiVanChuyen, MaDot, TrangThai, MaXacNhan) VALUES
+('PX1',GETDATE(),'ND2','ND4','D1',N'Đang vận chuyển','ABC123'),
+('PX2',GETDATE(),'ND2','ND4','D2',N'Đang vận chuyển','DEF456'),
+('PX3',GETDATE(),'ND2','ND4','D3',N'Đang vận chuyển','GHJ789'),
+('PX4',GETDATE(),'ND2','ND4','D4',N'Có vấn đề','KLM234'),
+('PX5',GETDATE(),'ND2','ND4','D5',N'Đang vận chuyển','NP5678')
+
+-- Phiếu xuất chưa có tài xế (chờ tài xế nhận)
+INSERT INTO PhieuXuat (MaPhieuXuat, NgayXuat, MaNguoiLap, MaNguoiVanChuyen, MaDot, TrangThai, MaXacNhan) VALUES
+('PX6',GETDATE(),'ND2',NULL,'D1',N'Chờ xuất kho','QR6789'),
+('PX7',GETDATE(),'ND2',NULL,'D2',N'Chờ xuất kho','ST7890'),
+('PX8',GETDATE(),'ND2',NULL,'D3',N'Chờ xuất kho','UV8901')
 
 -- =========================
 -- 16. ChiTietPhieuXuat
@@ -439,7 +445,12 @@ INSERT INTO ChiTietPhieuXuat (MaChiTietPhieuXuat, MaPhieuXuat, MaHang, SoLuong) 
 ('CTX2','PX2','H2',10),
 ('CTX3','PX3','H3',3),
 ('CTX4','PX4','H4',2),
-('CTX5','PX5','H5',1)
+('CTX5','PX5','H5',1),
+('CTX6','PX6','H1',20),
+('CTX7','PX6','H2',15),
+('CTX8','PX7','H3',8),
+('CTX9','PX7','H4',5),
+('CTX10','PX8','H5',12)
 
 -- =========================
 -- 17. YeuCauCuuTro
@@ -493,3 +504,28 @@ IF NOT EXISTS (
 BEGIN
     ALTER TABLE PhieuXuat ADD MaXacNhan VARCHAR(10) NULL;
 END
+
+-- =========================
+-- MIGRATION: Thêm phiếu xuất chưa có tài xế (chạy nếu chưa có)
+-- =========================
+IF NOT EXISTS (SELECT 1 FROM PhieuXuat WHERE MaPhieuXuat = 'PX6')
+BEGIN
+    INSERT INTO PhieuXuat (MaPhieuXuat, NgayXuat, MaNguoiLap, MaNguoiVanChuyen, MaDot, TrangThai, MaXacNhan) VALUES
+    ('PX6', GETDATE(), 'ND2', NULL, 'D1', N'Chờ xuất kho', 'QR6789'),
+    ('PX7', GETDATE(), 'ND2', NULL, 'D2', N'Chờ xuất kho', 'ST7890'),
+    ('PX8', GETDATE(), 'ND2', NULL, 'D3', N'Chờ xuất kho', 'UV8901');
+
+    INSERT INTO ChiTietPhieuXuat (MaChiTietPhieuXuat, MaPhieuXuat, MaHang, SoLuong) VALUES
+    ('CTX6',  'PX6', 'H1', 20),
+    ('CTX7',  'PX6', 'H2', 15),
+    ('CTX8',  'PX7', 'H3',  8),
+    ('CTX9',  'PX7', 'H4',  5),
+    ('CTX10', 'PX8', 'H5', 12);
+END
+
+-- Cập nhật MaXacNhan cho phiếu cũ nếu còn NULL
+UPDATE PhieuXuat SET MaXacNhan = 'ABC123' WHERE MaPhieuXuat = 'PX1' AND MaXacNhan IS NULL;
+UPDATE PhieuXuat SET MaXacNhan = 'DEF456' WHERE MaPhieuXuat = 'PX2' AND MaXacNhan IS NULL;
+UPDATE PhieuXuat SET MaXacNhan = 'GHJ789' WHERE MaPhieuXuat = 'PX3' AND MaXacNhan IS NULL;
+UPDATE PhieuXuat SET MaXacNhan = 'KLM234' WHERE MaPhieuXuat = 'PX4' AND MaXacNhan IS NULL;
+UPDATE PhieuXuat SET MaXacNhan = 'NP5678' WHERE MaPhieuXuat = 'PX5' AND MaXacNhan IS NULL;

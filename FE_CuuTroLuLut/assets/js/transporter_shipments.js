@@ -1,193 +1,239 @@
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // Mock Data for Pending Shipments
-    const shipments = [
-        {
-            id: 'SHP-1045',
-            campaign: 'Hỗ trợ khẩn cấp Làng Nủ - Lào Cai',
-            pickup: {
-                address: 'Kho Trung Tâm, KCN Hòa Khánh, Liên Chiểu, Đà Nẵng',
-                contact: 'Anh Minh - 0905.123.456',
-                time: 'Sẵn sàng'
-            },
-            delivery: {
-                address: 'UBND Xã Phúc Khánh, Bảo Yên, Lào Cai',
-                contact: 'Chị Mai - 0988.765.432'
-            },
-            goods: 'Nước lọc, Mì tôm, Thuốc men',
-            weight: '2.5 Tấn',
-            vehicleRequired: 'Xe tải 3.5 Tấn trở lên'
-        },
-        {
-            id: 'SHP-1046',
-            campaign: 'Cứu trợ ngập lụt Thái Nguyên',
-            pickup: {
-                address: 'Điểm tập kết Ủy Ban Quận Hải Châu, Đà Nẵng',
-                contact: 'Chị Lan - 0935.111.222',
-                time: 'Từ 14:00 hôm nay'
-            },
-            delivery: {
-                address: 'Nhà thi đấu tỉnh Thái Nguyên',
-                contact: 'Ban Chỉ Đạo - 0912.333.444'
-            },
-            goods: 'Áo phao, Đèn pin, Lương khô',
-            weight: '1.2 Tấn',
-            vehicleRequired: 'Xe tải nhẹ 1.5 Tấn'
-        },
-        {
-            id: 'SHP-1048',
-            campaign: 'Hỗ trợ khẩn cấp Làng Nủ - Lào Cai',
-            pickup: {
-                address: 'Kho hàng Liên Phường, Thanh Khê, Đà Nẵng',
-                contact: 'Chú Bình - 0903.555.666',
-                time: 'Sẵn sàng'
-            },
-            delivery: {
-                address: 'Trung tâm y tế Bảo Yên, Lào Cai',
-                contact: 'Bác sĩ Tú - 0977.888.999'
-            },
-            goods: 'Thiết bị y tế, Thuốc khử trùng',
-            weight: '0.5 Tấn',
-            vehicleRequired: 'Xe tải van / Xe bán tải'
-        }
-    ];
-
-    const container = document.getElementById('shipments-list');
+    const container   = document.getElementById('shipments-list');
     const searchInput = document.getElementById('shipment-search');
-    let selectedShipmentId = null;
 
-    function renderShipments(data) {
-        container.innerHTML = '';
-        if (data.length === 0) {
+    const getAny = (obj, keys, fallback = '') => {
+        if (!obj) return fallback;
+        for (const k of keys) {
+            const v = obj?.[k];
+            if (v !== undefined && v !== null && `${v}` !== '') return v;
+        }
+        return fallback;
+    };
+
+    const escapeHtml = (v) => `${v ?? ''}`
+        .replaceAll('&', '&amp;').replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+
+    let allShipments    = [];
+    let selectedId      = null;
+    const userId        = localStorage.getItem('userId') || '';
+
+    // ─── Render danh sách card ───────────────────────
+    const renderShipments = (list) => {
+        if (!list.length) {
             container.innerHTML = `
                 <div class="loading-state">
-                    <i class="fa-solid fa-box-open" style="color: #cbd5e1; font-size: 3rem; margin-bottom: 1rem;"></i>
-                    <p>Hiện không có chuyến hàng nào đang chờ.</p>
-                </div>
-            `;
+                    <i class="fa-solid fa-box-open" style="color:#cbd5e1;font-size:3rem;margin-bottom:1rem;"></i>
+                    <p>Hiện không có chuyến hàng nào đang chờ tài xế.</p>
+                </div>`;
             return;
         }
 
-        data.forEach(shp => {
-            container.innerHTML += `
-                <div class="shipment-card">
-                    <div class="shipment-timeline">
-                        <div class="timeline-line"></div>
-                        <div class="timeline-point point-pickup">
-                            <div class="point-label">Điểm Nhận Hàng</div>
-                            <div class="point-address">${shp.pickup.address}</div>
-                            <div class="point-contact">
-                                <i class="fa-solid fa-user"></i> ${shp.pickup.contact}
-                            </div>
-                            <div class="point-contact" style="color: var(--accent-orange); margin-top: 4px;">
-                                <i class="fa-regular fa-clock"></i> ${shp.pickup.time}
-                            </div>
+        container.innerHTML = list.map(shp => {
+            const ma         = getAny(shp, ['maPhieuXuat', 'MaPhieuXuat']);
+            const ngay       = getAny(shp, ['ngayXuat', 'NgayXuat'], '—');
+            const tenDot     = getAny(shp, ['tenDot', 'TenDot'], '—');
+            const hangHoa    = getAny(shp, ['hangHoa', 'HangHoa'], '—');
+            const nguoiLap   = getAny(shp, ['nguoiLap', 'NguoiLap'], '—');
+            const sdtNguoiLap = getAny(shp, ['sdtNguoiLap', 'SdtNguoiLap'], '');
+            const tongSL     = getAny(shp, ['tongSoLuong', 'TongSoLuong'], 0);
+            const trangThai  = getAny(shp, ['trangThai', 'TrangThai'], 'Chờ xuất kho');
+
+            return `
+            <div class="shipment-card" data-id="${escapeHtml(ma)}">
+                <div class="shipment-timeline">
+                    <div class="timeline-line"></div>
+                    <div class="timeline-point point-pickup">
+                        <div class="point-label">Điểm Nhận Hàng</div>
+                        <div class="point-address">Kho Trung Tâm Hòa Vang</div>
+                        <div class="point-contact">
+                            <i class="fa-solid fa-user"></i> ${escapeHtml(nguoiLap)}
+                            ${sdtNguoiLap ? `<span style="color:var(--accent-cyan);margin-left:0.5rem;"><i class="fa-solid fa-phone"></i> ${escapeHtml(sdtNguoiLap)}</span>` : ''}
                         </div>
-                        <div class="timeline-point point-delivery">
-                            <div class="point-label">Điểm Giao Hàng</div>
-                            <div class="point-address">${shp.delivery.address}</div>
-                            <div class="point-contact">
-                                <i class="fa-solid fa-user"></i> ${shp.delivery.contact}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="shipment-details">
-                        <div class="detail-row">
-                            <span class="detail-label">Mã chuyến:</span>
-                            <span class="detail-value" style="color: var(--accent-cyan);">${shp.id}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Chiến dịch:</span>
-                            <span class="detail-value" style="max-width: 150px; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${shp.campaign}">${shp.campaign}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Hàng hóa:</span>
-                            <span class="detail-value">${shp.goods}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Trọng lượng:</span>
-                            <span class="detail-value">${shp.weight}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Yêu cầu xe:</span>
-                            <span class="detail-value">${shp.vehicleRequired}</span>
+                        <div class="point-contact" style="color:var(--accent-orange);margin-top:4px;">
+                            <i class="fa-regular fa-clock"></i> ${escapeHtml(ngay)}
                         </div>
                     </div>
-                    
-                    <div class="shipment-actions">
-                        <button class="btn-accept" onclick="openAcceptModal('${shp.id}')">
-                            Nhận Chuyến <i class="fa-solid fa-check"></i>
-                        </button>
+                    <div class="timeline-point point-delivery">
+                        <div class="point-label">Đợt Cứu Trợ</div>
+                        <div class="point-address">${escapeHtml(tenDot)}</div>
+                        <div class="point-contact" style="color:var(--text-muted);">
+                            <i class="fa-solid fa-circle-info"></i> Địa điểm giao hàng theo lịch đợt cứu trợ
+                        </div>
                     </div>
                 </div>
-            `;
-        });
-    }
 
-    // Initial render
-    setTimeout(() => {
-        // Check if URL has campaign filter
-        const urlParams = new URLSearchParams(window.location.search);
-        const campId = urlParams.get('camp');
-        
-        let displayData = shipments;
-        // In a real app, we would filter by campaign ID. Here we just show all mock data for demo
-        
-        renderShipments(displayData);
-    }, 600);
+                <div class="shipment-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Mã phiếu:</span>
+                        <span class="detail-value" style="color:var(--accent-cyan);">${escapeHtml(ma)}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Đợt cứu trợ:</span>
+                        <span class="detail-value" style="max-width:150px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(tenDot)}">${escapeHtml(tenDot)}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Hàng hóa:</span>
+                        <span class="detail-value" style="max-width:150px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(hangHoa)}">${escapeHtml(hangHoa)}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Tổng số lượng:</span>
+                        <span class="detail-value">${escapeHtml(tongSL)} đơn vị</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Trạng thái:</span>
+                        <span class="status-badge-sm">${escapeHtml(trangThai)}</span>
+                    </div>
+                </div>
 
-    // Search Logic
-    searchInput.addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
-        const filtered = shipments.filter(s => 
-            s.pickup.address.toLowerCase().includes(term) || 
-            s.delivery.address.toLowerCase().includes(term) ||
-            s.id.toLowerCase().includes(term)
-        );
-        renderShipments(filtered);
+                <div class="shipment-actions">
+                    <button class="btn-accept" data-id="${escapeHtml(ma)}" onclick="openAcceptModal('${escapeHtml(ma)}')">
+                        Nhận Chuyến <i class="fa-solid fa-check"></i>
+                    </button>
+                    <button class="btn-detail" onclick="toggleDetail('${escapeHtml(ma)}')">
+                        <i class="fa-solid fa-list"></i> Chi Tiết
+                    </button>
+                </div>
+            </div>
+
+            <div class="shipment-detail-panel" id="detail-${escapeHtml(ma)}" style="display:none;">
+                <div class="detail-panel-inner">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> Đang tải chi tiết hàng hóa...
+                </div>
+            </div>`;
+        }).join('');
+    };
+
+    // ─── Toggle chi tiết hàng hóa ───────────────────
+    window.toggleDetail = async (id) => {
+        const panel = document.getElementById(`detail-${id}`);
+        if (!panel) return;
+
+        if (panel.style.display !== 'none') {
+            panel.style.display = 'none';
+            return;
+        }
+
+        panel.style.display = 'block';
+        panel.querySelector('.detail-panel-inner').innerHTML =
+            '<i class="fa-solid fa-circle-notch fa-spin"></i> Đang tải...';
+
+        try {
+            const details = await window.CuuTroApi.requestJson(`/api/PhieuXuat/${encodeURIComponent(id)}`);
+            if (Array.isArray(details) && details.length) {
+                panel.querySelector('.detail-panel-inner').innerHTML = `
+                    <table class="detail-table">
+                        <thead><tr><th>Mặt Hàng</th><th>Số Lượng</th><th>Đơn Vị</th></tr></thead>
+                        <tbody>
+                            ${details.map(d => `
+                                <tr>
+                                    <td>${escapeHtml(getAny(d, ['tenHang', 'TenHang']))}</td>
+                                    <td style="font-weight:700;color:var(--accent-orange);">${escapeHtml(getAny(d, ['soLuong', 'SoLuong']))}</td>
+                                    <td>${escapeHtml(getAny(d, ['donViTinh', 'DonViTinh']))}</td>
+                                </tr>`).join('')}
+                        </tbody>
+                    </table>`;
+            } else {
+                panel.querySelector('.detail-panel-inner').innerHTML =
+                    '<p style="color:var(--text-muted);text-align:center;">Không có chi tiết hàng hóa.</p>';
+            }
+        } catch (err) {
+            panel.querySelector('.detail-panel-inner').innerHTML =
+                `<p style="color:#dc2626;">Không tải được chi tiết: ${escapeHtml(err.message)}</p>`;
+        }
+    };
+
+    // ─── Load danh sách chuyến chờ ───────────────────
+    const loadShipments = async () => {
+        container.innerHTML = `
+            <div class="loading-state">
+                <i class="fa-solid fa-truck-fast fa-bounce"></i>
+                <p>Đang tìm chuyến hàng...</p>
+            </div>`;
+        try {
+            const data = await window.CuuTroApi.requestJson('/api/PhieuXuat/cho-nhan');
+            allShipments = Array.isArray(data) ? data : [];
+            renderShipments(allShipments);
+        } catch (err) {
+            container.innerHTML = `
+                <div class="loading-state">
+                    <i class="fa-solid fa-circle-exclamation" style="color:#dc2626;"></i>
+                    <p style="color:#dc2626;">Không tải được dữ liệu: ${escapeHtml(err.message || '')}</p>
+                </div>`;
+        }
+    };
+
+    // ─── Search ──────────────────────────────────────
+    searchInput?.addEventListener('input', () => {
+        const kw = searchInput.value.toLowerCase().trim();
+        if (!kw) { renderShipments(allShipments); return; }
+        renderShipments(allShipments.filter(s =>
+            getAny(s, ['maPhieuXuat', 'MaPhieuXuat']).toLowerCase().includes(kw) ||
+            getAny(s, ['tenDot', 'TenDot']).toLowerCase().includes(kw) ||
+            getAny(s, ['hangHoa', 'HangHoa']).toLowerCase().includes(kw)
+        ));
     });
 
-    // Modal Logic
-    window.openAcceptModal = function(id) {
-        selectedShipmentId = id;
-        const shp = shipments.find(s => s.id === id);
-        
+    // ─── Modal nhận chuyến ───────────────────────────
+    window.openAcceptModal = (id) => {
+        selectedId = id;
+        const shp = allShipments.find(s => getAny(s, ['maPhieuXuat', 'MaPhieuXuat']) === id);
+        if (!shp) return;
+
         const summary = document.getElementById('modal-shipment-summary');
         summary.innerHTML = `
-            Chuyến hàng <strong>${shp.id}</strong><br>
-            Từ: <strong>${shp.pickup.address}</strong><br>
-            Đến: <strong>${shp.delivery.address}</strong>
+            <div class="summary-row"><span>Mã phiếu:</span><strong style="color:var(--accent-cyan);">${escapeHtml(id)}</strong></div>
+            <div class="summary-row"><span>Đợt cứu trợ:</span><strong>${escapeHtml(getAny(shp, ['tenDot', 'TenDot']))}</strong></div>
+            <div class="summary-row"><span>Hàng hóa:</span><span>${escapeHtml(getAny(shp, ['hangHoa', 'HangHoa']))}</span></div>
+            <div class="summary-row"><span>Ngày tạo:</span><span>${escapeHtml(getAny(shp, ['ngayXuat', 'NgayXuat']))}</span></div>
         `;
-        
+
         const modal = document.getElementById('accept-modal');
         modal.style.display = 'flex';
-        // Small delay to allow display:flex to apply before changing opacity
         setTimeout(() => {
             modal.style.opacity = '1';
             modal.querySelector('.modal-content').style.transform = 'scale(1)';
         }, 10);
     };
 
-    window.closeAcceptModal = function() {
+    window.closeAcceptModal = () => {
         const modal = document.getElementById('accept-modal');
         modal.style.opacity = '0';
         modal.querySelector('.modal-content').style.transform = 'scale(0.95)';
-        
-        setTimeout(() => {
-            modal.style.display = 'none';
-            selectedShipmentId = null;
-        }, 300);
+        setTimeout(() => { modal.style.display = 'none'; selectedId = null; }, 300);
     };
 
-    document.getElementById('confirm-accept-btn').addEventListener('click', () => {
-        if(selectedShipmentId) {
-            // In a real app, this would be an API call.
-            alert(`Đã nhận chuyến hàng ${selectedShipmentId} thành công!`);
+    document.getElementById('confirm-accept-btn')?.addEventListener('click', async () => {
+        if (!selectedId) return;
+        if (!userId) { alert('Không xác định được tài khoản. Vui lòng đăng nhập lại.'); return; }
+
+        const btn = document.getElementById('confirm-accept-btn');
+        btn.disabled = true;
+        btn.textContent = 'Đang xử lý...';
+
+        try {
+            await window.CuuTroApi.requestJson(`/api/PhieuXuat/${encodeURIComponent(selectedId)}/nhan-chuyen`, {
+                method: 'PATCH',
+                body: JSON.stringify({ MaNguoiVanChuyen: userId })
+            });
             closeAcceptModal();
-            // Redirect to schedule page
+            alert(`Nhận chuyến hàng ${selectedId} thành công! Chuyển đến trang lịch trình.`);
             window.location.href = 'transporter_schedule.html';
+        } catch (err) {
+            alert(`Lỗi: ${err.message || ''}`);
+            btn.disabled = false;
+            btn.textContent = 'Xác Nhận Nhận Chuyến';
         }
     });
 
+    // ─── Tên người dùng ──────────────────────────────
+    const displayUserName = document.getElementById('display-user-name');
+    if (displayUserName) {
+        const name = localStorage.getItem('userName');
+        if (name) displayUserName.textContent = name;
+    }
+
+    // ─── Init ─────────────────────────────────────────
+    loadShipments();
 });

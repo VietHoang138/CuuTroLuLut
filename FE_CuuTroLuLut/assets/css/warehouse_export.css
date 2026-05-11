@@ -537,3 +537,93 @@
 #otp-input:focus {
     box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
 }
+
+/* ===== Hiển thị mã xác nhận trong modal xác nhận xuất ===== */
+.ma-xacnhan-display {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border: 2px solid #f59e0b;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.ma-xacnhan-label {
+    font-size: 0.82rem;
+    color: #92400e;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.ma-xacnhan-value-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.ma-xacnhan-value {
+    font-family: 'Courier New', monospace;
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 0.4em;
+    color: #b45309;
+    background: white;
+    border: 1.5px dashed #f59e0b;
+    border-radius: 8px;
+    padding: 0.4rem 1rem;
+    flex: 1;
+    text-align: center;
+}
+
+.btn-copy-ma {
+    background: #f59e0b;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.btn-copy-ma:hover { background: #d97706; }
+
+/* ===== Modal thông báo mã sau khi tạo phiếu ===== */
+.new-ma-xacnhan-box {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 2px solid #10b981;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.new-ma-xacnhan-value {
+    font-family: 'Courier New', monospace;
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: 0.5em;
+    color: #065f46;
+    display: block;
+    margin-bottom: 1rem;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.btn-copy-new {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-copy-new:hover { background: #059669; }
