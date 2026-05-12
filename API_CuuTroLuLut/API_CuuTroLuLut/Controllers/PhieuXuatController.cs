@@ -45,8 +45,7 @@ namespace CuuTroAPI.Controllers
                 LEFT JOIN NguoiDung nl ON px.MaNguoiLap = nl.MaNguoiDung
                 LEFT JOIN DotCuuTro d  ON px.MaDot      = d.MaDot
                 WHERE px.MaNguoiVanChuyen IS NULL
-                  AND ISNULL(px.TrangThai, '') NOT IN (N'Đã xuất kho', N'Đã hoàn thành')
-                  AND ISNULL(px.TrangThai, '') NOT LIKE N'Đang vận chuyển%'
+                  AND ISNULL(px.TrangThai, '') NOT IN (N'Đã xuất kho', N'Đã hoàn thành', N'Chờ xác nhận xuất', N'Đang vận chuyển')
                 ORDER BY px.NgayXuat DESC
             ";
 
@@ -131,7 +130,7 @@ namespace CuuTroAPI.Controllers
         }
 
         // ─────────────────────────────────────────────
-        // PATCH {id}/nhan-chuyen – Tài xế nhận chuyến
+        // PATCH {id}/nhan-chuyen – Tài xế nhận chuyến (yêu cầu MaXacNhan)
         // ─────────────────────────────────────────────
         [HttpPatch("{id}/nhan-chuyen")]
         public IActionResult NhanChuyen(string id, [FromBody] NhanChuyenRequest req)
@@ -139,25 +138,41 @@ namespace CuuTroAPI.Controllers
             if (string.IsNullOrWhiteSpace(req.MaNguoiVanChuyen))
                 return BadRequest(new { message = "Thiếu mã tài xế." });
 
+            if (string.IsNullOrWhiteSpace(req.MaXacNhan))
+                return BadRequest(new { message = "Vui lòng nhập mã xác nhận từ thủ kho." });
+
             string connStr = _config.GetConnectionString("DefaultConnection")!;
             using var conn = new SqlConnection(connStr);
             conn.Open();
 
-            // Kiểm tra phiếu còn trống tài xế không
-            string sqlCheck = "SELECT ISNULL(MaNguoiVanChuyen, '') FROM PhieuXuat WHERE MaPhieuXuat = @Ma";
+            // Lấy trạng thái và mã xác nhận hiện tại
+            string sqlCheck = "SELECT ISNULL(MaNguoiVanChuyen,''), ISNULL(MaXacNhan,'') FROM PhieuXuat WHERE MaPhieuXuat = @Ma";
             using var cmdCheck = new SqlCommand(sqlCheck, conn);
             cmdCheck.Parameters.AddWithValue("@Ma", id);
-            var existing = cmdCheck.ExecuteScalar()?.ToString() ?? "";
+            using var rCheck = cmdCheck.ExecuteReader();
 
-            if (existing == null) return NotFound(new { message = "Không tìm thấy phiếu xuất." });
-            if (!string.IsNullOrWhiteSpace(existing))
+            if (!rCheck.Read())
+                return NotFound(new { message = "Không tìm thấy phiếu xuất." });
+
+            string existingVC = rCheck.GetString(0);
+            string dbMaXN     = rCheck.GetString(1);
+            rCheck.Close();
+
+            if (!string.IsNullOrWhiteSpace(existingVC))
                 return Conflict(new { message = "Chuyến hàng này đã có tài xế nhận rồi." });
 
-            // Gán tài xế + cập nhật trạng thái
+            if (string.IsNullOrWhiteSpace(dbMaXN))
+                return BadRequest(new { message = "Phiếu này chưa có mã xác nhận. Liên hệ thủ kho." });
+
+            if (!string.Equals(dbMaXN.Trim(), req.MaXacNhan.Trim(), StringComparison.OrdinalIgnoreCase))
+                return BadRequest(new { message = "Mã xác nhận không đúng. Vui lòng kiểm tra lại với thủ kho." });
+
+            // Mã khớp → gán tài xế + cập nhật trạng thái "Chờ xác nhận xuất"
+            // Thủ kho phải xác nhận lần nữa mới chuyển sang "Đã xuất kho"
             string sqlUpd = @"
                 UPDATE PhieuXuat
                 SET MaNguoiVanChuyen = @VC,
-                    TrangThai = N'Đang vận chuyển'
+                    TrangThai = N'Chờ xác nhận xuất'
                 WHERE MaPhieuXuat = @Ma
             ";
             using var cmdUpd = new SqlCommand(sqlUpd, conn);
@@ -165,7 +180,7 @@ namespace CuuTroAPI.Controllers
             cmdUpd.Parameters.AddWithValue("@VC", req.MaNguoiVanChuyen);
             cmdUpd.ExecuteNonQuery();
 
-            return Ok(new { message = "Nhận chuyến thành công." });
+            return Ok(new { message = "Nhận chuyến thành công. Chúc bạn lái xe an toàn!" });
         }
 
         // ─────────────────────────────────────────────
@@ -369,39 +384,24 @@ namespace CuuTroAPI.Controllers
         }
 
         // ─────────────────────────────────────────────
-        // PATCH {id}/trang-thai – Xác nhận xuất kho
-        // Yêu cầu MaXacNhan khớp với DB mới cho phép
+        // PATCH {id}/trang-thai – Cập nhật trạng thái (thủ kho xác nhận xuất)
+        // Không cần MaXacNhan — tài xế đã xác nhận bằng mã khi nhận chuyến
         // ─────────────────────────────────────────────
         [HttpPatch("{id}/trang-thai")]
         public IActionResult UpdateTrangThai(string id, [FromBody] PhieuXuatTrangThaiRequest req)
         {
-            if (string.IsNullOrWhiteSpace(req.MaXacNhan))
-                return BadRequest(new { message = "Vui lòng nhập mã xác nhận từ tài xế." });
-
             string connStr = _config.GetConnectionString("DefaultConnection")!;
             using var conn = new SqlConnection(connStr);
             conn.Open();
 
-            // Lấy mã xác nhận đang lưu trong DB
-            string sqlGet = "SELECT ISNULL(MaXacNhan, '') FROM PhieuXuat WHERE MaPhieuXuat = @Ma";
-            using var cmdGet = new SqlCommand(sqlGet, conn);
-            cmdGet.Parameters.AddWithValue("@Ma", id);
-            var dbMaXN = cmdGet.ExecuteScalar()?.ToString() ?? "";
-
-            if (string.IsNullOrWhiteSpace(dbMaXN))
-                return NotFound(new { message = "Không tìm thấy phiếu xuất." });
-
-            if (!string.Equals(dbMaXN.Trim(), req.MaXacNhan.Trim(), StringComparison.OrdinalIgnoreCase))
-                return BadRequest(new { message = "Mã xác nhận không đúng. Vui lòng kiểm tra lại với tài xế." });
-
-            // Mã khớp → cập nhật trạng thái
             string sqlUpd = "UPDATE PhieuXuat SET TrangThai = @TT WHERE MaPhieuXuat = @Ma";
             using var cmdUpd = new SqlCommand(sqlUpd, conn);
             cmdUpd.Parameters.AddWithValue("@Ma", id);
             cmdUpd.Parameters.AddWithValue("@TT", req.TrangThai ?? "Đã xuất kho");
-            cmdUpd.ExecuteNonQuery();
+            int affected = cmdUpd.ExecuteNonQuery();
 
-            return Ok(new { message = "Xác nhận xuất kho thành công." });
+            if (affected == 0) return NotFound(new { message = "Không tìm thấy phiếu." });
+            return Ok(new { message = "Cập nhật trạng thái thành công." });
         }
 
         // ─────────────────────────────────────────────
@@ -453,5 +453,6 @@ namespace CuuTroAPI.Controllers
     public class NhanChuyenRequest
     {
         public string? MaNguoiVanChuyen { get; set; }
+        public string? MaXacNhan        { get; set; }
     }
 }

@@ -110,10 +110,11 @@
                             <thead>
                                 <tr>
                                     <th>Mã Phiếu</th>
-                                    <th>Thời Gian Dự Kiến</th>
-                                    <th>Đích Đến (Vùng Lũ)</th>
+                                    <th>Thời Gian</th>
+                                    <th>Đợt Cứu Trợ</th>
                                     <th>Tài Xế Vận Chuyển</th>
                                     <th>Hàng Hóa Xuất</th>
+                                    <th>Mã XN</th>
                                     <th>Trạng Thái</th>
                                     <th>Thao Tác</th>
                                 </tr>
@@ -177,36 +178,6 @@
                     <ul class="checklist-items" id="modal-goods-list">
                         <!-- Populated by JS -->
                     </ul>
-                </div>
-
-                <div class="form-group" style="margin-top: 1.5rem;">
-                    <label>Mã Xác Nhận Từ Tài Xế <span style="color:#dc2626;font-weight:700;">*</span></label>
-
-                    <!-- Mã của phiếu này — hiển thị để thủ kho đọc cho tài xế -->
-                    <div id="phieu-ma-xacnhan-box" class="ma-xacnhan-display" style="display:none;">
-                        <div class="ma-xacnhan-label">
-                            <i class="fa-solid fa-key"></i> Mã xác nhận của phiếu này (giao cho tài xế):
-                        </div>
-                        <div class="ma-xacnhan-value-row">
-                            <span id="phieu-ma-xacnhan-value" class="ma-xacnhan-value">——</span>
-                            <button type="button" class="btn-copy-ma" id="btn-copy-ma" title="Sao chép mã">
-                                <i class="fa-solid fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:0.5rem;margin-top:0.75rem;">
-                        <i class="fa-solid fa-circle-info" style="color:#3b82f6;"></i>
-                        Tài xế đọc lại mã trên cho bạn. Nhập đúng mã mới có thể xác nhận xuất kho.
-                    </p>
-                    <div style="position:relative;">
-                        <input type="text" id="otp-input" class="form-control" 
-                               placeholder="Nhập mã 6 ký tự từ tài xế..."
-                               maxlength="6"
-                               style="text-transform:uppercase;letter-spacing:0.25em;font-size:1.1rem;font-weight:700;padding-right:2.5rem;">
-                        <span id="otp-status-icon" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);font-size:1.1rem;"></span>
-                    </div>
-                    <p id="otp-hint" style="font-size:0.82rem;margin-top:0.4rem;color:var(--text-muted);"></p>
                 </div>
             </div>
             

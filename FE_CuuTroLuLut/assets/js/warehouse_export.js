@@ -21,28 +21,51 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentExportId = null;
 
     // ─── Render bảng ────────────────────────────────────
+    const getBadge = (trangThai) => {
+        switch (trangThai) {
+            case 'Đã xuất kho':
+            case 'Đã hoàn thành':
+                return `<span class="status-badge status-done"><i class="fa-solid fa-circle-check"></i> ${escapeHtml(trangThai)}</span>`;
+            case 'Chờ xuất kho':
+                return `<span class="status-badge status-waiting"><i class="fa-solid fa-hourglass-half"></i> Chờ xuất kho</span>`;
+            case 'Chờ xác nhận xuất':
+                return `<span class="status-badge status-pending-confirm"><i class="fa-solid fa-bell"></i> Chờ xác nhận xuất</span>`;
+            case 'Đang vận chuyển':
+                return `<span class="status-badge status-transit"><i class="fa-solid fa-truck-fast"></i> Đang vận chuyển</span>`;
+            case 'Có vấn đề':
+                return `<span class="status-badge status-issue"><i class="fa-solid fa-triangle-exclamation"></i> Có vấn đề</span>`;
+            default:
+                return `<span class="status-badge status-waiting"><i class="fa-solid fa-clock"></i> ${escapeHtml(trangThai)}</span>`;
+        }
+    };
+
+    // Chỉ cho phép xuất khi tài xế đã nhận và đang chờ thủ kho xác nhận
+    const isEditable = (trangThai) =>
+        trangThai === 'Chờ xác nhận xuất';
+
     const renderTable = (list) => {
         if (!list.length) {
-            tbody.innerHTML = `<tr><td colspan="7" class="loading-cell">Chưa có phiếu xuất nào.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="loading-cell">Chưa có phiếu xuất nào.</td></tr>`;
             return;
         }
         tbody.innerHTML = list.map(item => {
-            const ma       = getAny(item, ['maPhieuXuat', 'MaPhieuXuat']);
-            const ngay     = getAny(item, ['ngayXuat', 'NgayXuat']);
-            const tenDot   = getAny(item, ['tenDot', 'TenDot'], '—');
-            const taiXe    = getAny(item, ['taiXe', 'TaiXe'], '—');
-            const sdtTaiXe = getAny(item, ['sdtTaiXe', 'SdtTaiXe'], '');
-            const hangHoa  = getAny(item, ['hangHoa', 'HangHoa'], '—');
+            const ma        = getAny(item, ['maPhieuXuat', 'MaPhieuXuat']);
+            const ngay      = getAny(item, ['ngayXuat', 'NgayXuat']);
+            const tenDot    = getAny(item, ['tenDot', 'TenDot'], '—');
+            const taiXe     = getAny(item, ['taiXe', 'TaiXe'], '—');
+            const sdtTaiXe  = getAny(item, ['sdtTaiXe', 'SdtTaiXe'], '');
+            const hangHoa   = getAny(item, ['hangHoa', 'HangHoa'], '—');
             const trangThai = getAny(item, ['trangThai', 'TrangThai'], 'Chờ xuất kho');
+            const maXN      = getAny(item, ['maXacNhan', 'MaXacNhan'], '');
 
-            const isDone = trangThai === 'Đã xuất kho';
-            const badge = isDone
-                ? `<span class="status-badge badge-completed"><i class="fa-solid fa-truck-fast"></i> Đã xuất kho</span>`
-                : `<span class="status-badge badge-pending"><i class="fa-solid fa-clock"></i> ${escapeHtml(trangThai)}</span>`;
+            // Cột mã xác nhận — chỉ hiện khi chưa có tài xế nhận (Chờ xuất kho)
+            const maXNCell = maXN
+                ? `<span class="ma-xn-badge" title="Mã xác nhận giao cho tài xế">${escapeHtml(maXN)}</span>`
+                : `<span style="color:var(--text-muted);font-size:0.8rem;">—</span>`;
 
-            const actionBtn = isDone
-                ? `<button class="btn btn-sm" style="background:#e2e8f0;color:#64748b;border:none;cursor:default;">Hoàn Tất</button>`
-                : `<button class="btn-action btn btn-sm" data-action="view" title="Xem & xác nhận xuất"><i class="fa-solid fa-eye"></i> Xuất Hàng</button>`;
+            const actionBtn = isEditable(trangThai)
+                ? `<button class="btn-action btn btn-sm" data-action="view" title="Xem & xác nhận xuất"><i class="fa-solid fa-eye"></i> Xuất Hàng</button>`
+                : `<button class="btn btn-sm" style="background:#e2e8f0;color:#64748b;border:none;cursor:default;"><i class="fa-solid fa-check"></i> Hoàn Tất</button>`;
 
             return `
             <tr data-id="${escapeHtml(ma)}">
@@ -53,8 +76,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div style="font-weight:600;">${escapeHtml(taiXe)}</div>
                     ${sdtTaiXe ? `<div style="font-size:0.8rem;color:var(--text-muted);">${escapeHtml(sdtTaiXe)}</div>` : ''}
                 </td>
-                <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(hangHoa)}">${escapeHtml(hangHoa)}</td>
-                <td>${badge}</td>
+                <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(hangHoa)}">${escapeHtml(hangHoa)}</td>
+                <td>${maXNCell}</td>
+                <td>${getBadge(trangThai)}</td>
                 <td>
                     <div class="action-buttons">${actionBtn}</div>
                 </td>
@@ -75,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ─── Load danh sách phiếu xuất ──────────────────────
     const loadExports = async () => {
-        tbody.innerHTML = `<tr><td colspan="7" class="loading-cell"><i class="fa-solid fa-circle-notch fa-spin"></i> Đang tải dữ liệu...</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="loading-cell"><i class="fa-solid fa-circle-notch fa-spin"></i> Đang tải dữ liệu...</td></tr>`;
         try {
             const data = await window.CuuTroApi.requestJson('/api/PhieuXuat');
             allExports = Array.isArray(data) ? data : [];
@@ -135,36 +159,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal-driver-phone').textContent = getAny(item, ['sdtTaiXe', 'SdtTaiXe'], '—');
         document.getElementById('modal-driver-plate').textContent = getAny(item, ['bienSoXe', 'BienSoXe'], '—');
 
-        // Hiển thị mã xác nhận của phiếu này
-        const maXN = getAny(item, ['maXacNhan', 'MaXacNhan'], '');
-        const maBox = document.getElementById('phieu-ma-xacnhan-box');
-        const maVal = document.getElementById('phieu-ma-xacnhan-value');
-        if (maBox && maVal) {
-            if (maXN) {
-                maVal.textContent = maXN;
-                maBox.style.display = 'block';
-            } else {
-                maBox.style.display = 'none';
-            }
-        }
-
-        // Gắn nút copy mã
-        document.getElementById('btn-copy-ma')?.addEventListener('click', () => {
-            navigator.clipboard?.writeText(maXN).then(() => {
-                const btn = document.getElementById('btn-copy-ma');
-                if (btn) { btn.innerHTML = '<i class="fa-solid fa-check"></i>'; setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-copy"></i>'; }, 1500); }
-            });
-        });
-
         // Reset checkbox
         const verifyCheck = document.getElementById('verify-driver-export');
         if (verifyCheck) verifyCheck.checked = false;
         document.getElementById('btn-confirm-export').disabled = true;
-
-        // Reset ô OTP
-        const otpInput = document.getElementById('otp-input');
-        if (otpInput) otpInput.value = '';
-        showOtpStatus('none', '');
 
         // Load chi tiết hàng hóa
         const goodsList = document.getElementById('modal-goods-list');
@@ -204,83 +202,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function checkExportValidity() {
-        const verifyDriver  = document.getElementById('verify-driver-export')?.checked;
-        const checkers      = [...document.querySelectorAll('.item-checker')];
-        const allChecked    = checkers.length > 0 && checkers.every(c => c.checked);
-        const otpVal        = document.getElementById('otp-input')?.value?.trim() || '';
-        const otpOk         = otpVal.length === 6;
-        document.getElementById('btn-confirm-export').disabled = !(verifyDriver && allChecked && otpOk);
-    }
-
-    // Hiển thị trạng thái ô OTP
-    function showOtpStatus(type, msg) {
-        const icon  = document.getElementById('otp-status-icon');
-        const hint  = document.getElementById('otp-hint');
-        const input = document.getElementById('otp-input');
-        if (!icon || !hint || !input) return;
-
-        if (type === 'ok') {
-            icon.innerHTML  = '<i class="fa-solid fa-circle-check" style="color:#10b981;"></i>';
-            hint.style.color = '#10b981';
-            hint.textContent = 'Mã hợp lệ — đủ 6 ký tự.';
-            input.style.borderColor = '#10b981';
-        } else if (type === 'error') {
-            icon.innerHTML  = '<i class="fa-solid fa-circle-xmark" style="color:#dc2626;"></i>';
-            hint.style.color = '#dc2626';
-            hint.textContent = msg || 'Mã không đúng.';
-            input.style.borderColor = '#dc2626';
-        } else {
-            icon.innerHTML  = '';
-            hint.textContent = '';
-            input.style.borderColor = '';
-        }
+        const verifyDriver = document.getElementById('verify-driver-export')?.checked;
+        const checkers     = [...document.querySelectorAll('.item-checker')];
+        const allChecked   = checkers.length > 0 && checkers.every(c => c.checked);
+        document.getElementById('btn-confirm-export').disabled = !(verifyDriver && allChecked);
     }
 
     document.getElementById('verify-driver-export')?.addEventListener('change', checkExportValidity);
 
-    // Validate OTP realtime khi gõ
-    document.getElementById('otp-input')?.addEventListener('input', (e) => {
-        e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-        const len = e.target.value.trim().length;
-        if (len === 0)       showOtpStatus('none', '');
-        else if (len < 6)    showOtpStatus('error', `Còn thiếu ${6 - len} ký tự.`);
-        else                 showOtpStatus('ok', '');
-        checkExportValidity();
-    });
-
     // ─── Nút Xác Nhận Đã Xuất Kho ───────────────────────
     document.getElementById('btn-confirm-export')?.addEventListener('click', async () => {
         if (!currentExportId) return;
-
-        const otpInput = document.getElementById('otp-input');
-        const maXacNhan = otpInput?.value?.trim().toUpperCase() || '';
-
-        if (maXacNhan.length !== 6) {
-            otpInput?.focus();
-            showOtpStatus('error', 'Mã xác nhận phải đủ 6 ký tự.');
-            return;
-        }
-
         const btn = document.getElementById('btn-confirm-export');
         btn.disabled = true;
         btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Đang xử lý...';
         try {
             await window.CuuTroApi.requestJson(`/api/PhieuXuat/${encodeURIComponent(currentExportId)}/trang-thai`, {
                 method: 'PATCH',
-                body: JSON.stringify({ TrangThai: 'Đã xuất kho', MaXacNhan: maXacNhan })
+                body: JSON.stringify({ TrangThai: 'Đang vận chuyển' })
             });
             alert(`Xác nhận xuất kho phiếu ${currentExportId} thành công!`);
             closeConfirmModal();
             currentExportId = null;
             await loadExports();
         } catch (err) {
-            // Nếu API trả lỗi mã sai → hiển thị ngay trên ô nhập
-            const msg = err.message || '';
-            if (msg.toLowerCase().includes('mã xác nhận') || msg.toLowerCase().includes('không đúng')) {
-                showOtpStatus('error', msg);
-            } else {
-                alert(`Lỗi: ${msg}`);
-            }
+            alert(`Lỗi: ${err.message || ''}`);
             btn.disabled = false;
         } finally {
             btn.innerHTML = '<i class="fa-solid fa-file-export"></i> Xác Nhận Đã Xuất Kho';
