@@ -426,3 +426,18 @@
         flex: auto;
     }
 }
+
+/* ===== Card đã được kho duyệt — viền xanh lá ===== */
+.card-approved {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15) !important;
+}
+
+/* Box thông báo kho đã duyệt ===== */
+.approved-box {
+    text-align: center;
+    padding: 1rem;
+    background: #f0fdf4;
+    border: 1.5px solid #10b981;
+    border-radius: 10px;
+}

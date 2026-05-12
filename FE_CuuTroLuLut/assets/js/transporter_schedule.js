@@ -44,6 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const isDone = (trangThai) =>
         ['Đã giao thành công', 'Đã hoàn thành', 'Đã xuất kho'].includes(trangThai);
 
+    // Phiếu được tính là "đang chạy" khi thủ kho đã duyệt (Đang vận chuyển trở đi)
+    const isApproved = (trangThai) =>
+        ['Đang vận chuyển', 'Đang lấy hàng', 'Đang di chuyển'].includes(trangThai);
+
     // ─── Render danh sách ────────────────────────────
     const renderSchedule = () => {
         const filtered = allSchedule.filter(item => {
@@ -88,6 +92,17 @@ document.addEventListener('DOMContentLoaded', () => {
                            <small>Bạn sẽ được thông báo khi hàng sẵn sàng.</small>
                        </div>
                    </div>`
+                : isApproved(tt)
+                ? `<div class="sc-actions">
+                       <div class="approved-box">
+                           <i class="fa-solid fa-circle-check" style="color:#10b981;font-size:1.5rem;display:block;margin-bottom:0.4rem;"></i>
+                           <p style="color:#065f46;font-weight:700;font-size:0.85rem;margin:0 0 0.75rem;">Kho đã xác nhận xuất!</p>
+                           <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.75rem;">Cập nhật lộ trình của bạn</p>
+                           <button class="btn-update" onclick="openStatusModal('${escapeHtml(ma)}', '${escapeHtml(tt)}')">
+                               <i class="fa-solid fa-pen-to-square"></i> Cập Nhật
+                           </button>
+                       </div>
+                   </div>`
                 : `<div class="sc-actions">
                        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;text-align:center;">Cập nhật lộ trình</p>
                        <button class="btn-update" onclick="openStatusModal('${escapeHtml(ma)}', '${escapeHtml(tt)}')">
@@ -96,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
                    </div>`;
 
             return `
-            <div class="schedule-card${isWaitingConfirm ? ' card-waiting' : ''}">
+            <div class="schedule-card${isWaitingConfirm ? ' card-waiting' : ''}${isApproved(tt) ? ' card-approved' : ''}">
                 <div class="sc-header">
                     <span class="sc-id">
                         <i class="fa-solid fa-hashtag" style="color:var(--accent-cyan);margin-right:4px;"></i>
@@ -234,4 +249,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ─── Init ─────────────────────────────────────────
     loadSchedule();
+
+    // Auto-refresh mỗi 30 giây để cập nhật khi thủ kho duyệt
+    setInterval(() => {
+        if (currentTab === 'active') loadSchedule();
+    }, 30000);
 });
