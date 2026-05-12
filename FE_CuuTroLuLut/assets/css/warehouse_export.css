@@ -627,3 +627,117 @@
 }
 
 .btn-copy-new:hover { background: #059669; }
+
+/* ===== Status badges — đầy đủ trạng thái ===== */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* Chờ xuất kho — vàng */
+.status-waiting {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+/* Đang vận chuyển — xanh dương */
+.status-transit {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+/* Đã xuất kho / Đã hoàn thành — xanh lá */
+.status-done {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+/* Có vấn đề — đỏ */
+.status-issue {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* ===== Cột Mã Xác Nhận trong bảng ===== */
+.ma-xn-badge {
+    display: inline-block;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    color: #b45309;
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+    border-radius: 6px;
+    padding: 0.2rem 0.5rem;
+}
+
+/* Chờ xác nhận xuất — tím/indigo, nổi bật để thủ kho chú ý */
+.status-pending-confirm {
+    background: #ede9fe;
+    color: #5b21b6;
+    animation: pulse-badge 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.65; }
+}
+
+/* ===== Nút Xem Chi Tiết ===== */
+.btn-view {
+    background: #f1f5f9;
+    color: var(--accent-cyan);
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 0.4rem 0.6rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.btn-view:hover {
+    background: #e0f2fe;
+    border-color: var(--accent-cyan);
+}
+
+/* ===== Modal Chi Tiết ===== */
+.detail-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+}
+
+.detail-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.detail-info-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.detail-info-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}

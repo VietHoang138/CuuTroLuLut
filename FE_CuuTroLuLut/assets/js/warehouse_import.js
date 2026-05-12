@@ -62,8 +62,25 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateStats = (list) => {
-        const totalEl = document.querySelector('.stat-card:nth-child(2) .stat-number');
-        if (totalEl) totalEl.textContent = list.length;
+        // Card 1: Xe đang đến — phiếu chờ xác nhận
+        const choXacNhan = list.filter(x =>
+            getAny(x, ['trangThai', 'TrangThai']) === 'Chờ xác nhận'
+        ).length;
+
+        // Card 2: Đã nhập — phiếu đã xác nhận
+        const daXacNhan = list.filter(x =>
+            getAny(x, ['trangThai', 'TrangThai']) === 'Đã xác nhận'
+        ).length;
+
+        // Card 3: Tổng số phiếu
+        const tongPhieu = list.length;
+
+        const el1 = document.querySelector('.stat-card:nth-child(1) .stat-number');
+        const el2 = document.querySelector('.stat-card:nth-child(2) .stat-number');
+        const el3 = document.querySelector('.stat-card:nth-child(3) .stat-number');
+        if (el1) el1.textContent = choXacNhan;
+        if (el2) el2.textContent = daXacNhan;
+        if (el3) el3.textContent = tongPhieu;
     };
 
     const loadImports = async () => {
