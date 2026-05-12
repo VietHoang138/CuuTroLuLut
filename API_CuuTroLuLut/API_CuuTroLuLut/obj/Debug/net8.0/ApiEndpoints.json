@@ -385,6 +385,43 @@
   },
   {
     "ContainingType": "CuuTroAPI.Controllers.PhieuXuatController",
+    "Method": "HoanThanh",
+    "RelativePath": "api/PhieuXuat/{id}/hoan-thanh",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "CuuTroAPI.Controllers.HoanThanhRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.PhieuXuatController",
+    "Method": "HoanThanhGiao",
+    "RelativePath": "api/PhieuXuat/{id}/hoan-thanh-giao",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.PhieuXuatController",
     "Method": "NhanChuyen",
     "RelativePath": "api/PhieuXuat/{id}/nhan-chuyen",
     "HttpMethod": "PATCH",
@@ -427,12 +464,49 @@
   },
   {
     "ContainingType": "CuuTroAPI.Controllers.PhieuXuatController",
+    "Method": "XacNhanGiao",
+    "RelativePath": "api/PhieuXuat/{id}/xac-nhan-giao",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "CuuTroAPI.Controllers.XacNhanGiaoRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.PhieuXuatController",
     "Method": "GetChoNhan",
     "RelativePath": "api/PhieuXuat/cho-nhan",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.PhieuXuatController",
+    "Method": "GetChoThon",
+    "RelativePath": "api/PhieuXuat/cho-thon/{maDot}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maDot",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": []
   },
   {

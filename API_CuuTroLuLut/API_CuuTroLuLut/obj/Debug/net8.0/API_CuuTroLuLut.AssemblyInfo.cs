@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("API_CuuTroLuLut")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fbbbcfbbbb6ff5ebf2ac0bbfad45be15f0e2aa56")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+72c2486286bf5d9c5577ba8b3302c27d415ab0f5")]
 [assembly: System.Reflection.AssemblyProductAttribute("API_CuuTroLuLut")]
 [assembly: System.Reflection.AssemblyTitleAttribute("API_CuuTroLuLut")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

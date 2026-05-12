@@ -24,20 +24,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const getStatusInfo = (trangThai) => {
         switch (trangThai) {
             case 'Chờ xác nhận xuất':
-                return { cls: 'status-waiting-confirm', icon: 'fa-bell',         label: 'Chờ xác nhận xuất' };
+                return { cls: 'status-waiting-confirm', icon: 'fa-bell',                  label: 'Chờ xác nhận xuất' };
+            case 'Chờ tài xế xác nhận':
+                return { cls: 'status-waiting-driver',  icon: 'fa-handshake',             label: 'Chờ tài xế xác nhận' };
             case 'Đang vận chuyển':
             case 'Đang di chuyển':
-                return { cls: 'status-moving',          icon: 'fa-truck-fast',   label: trangThai };
+                return { cls: 'status-moving',          icon: 'fa-truck-fast',            label: trangThai };
             case 'Đang lấy hàng':
-                return { cls: 'status-picking',         icon: 'fa-box-open',     label: 'Đang lấy hàng' };
+                return { cls: 'status-picking',         icon: 'fa-box-open',              label: 'Đang lấy hàng' };
             case 'Đã giao thành công':
             case 'Đã hoàn thành':
             case 'Đã xuất kho':
-                return { cls: 'status-delivered',       icon: 'fa-check-double', label: trangThai };
+                return { cls: 'status-delivered',       icon: 'fa-check-double',          label: trangThai };
             case 'Có vấn đề':
-                return { cls: 'status-issue',           icon: 'fa-triangle-exclamation', label: 'Có vấn đề' };
+                return { cls: 'status-issue',           icon: 'fa-triangle-exclamation',  label: 'Có vấn đề' };
             default:
-                return { cls: 'status-received',        icon: 'fa-clock',        label: trangThai };
+                return { cls: 'status-received',        icon: 'fa-clock',                 label: trangThai };
         }
     };
 
@@ -75,7 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const tt       = getAny(item, ['trangThai', 'TrangThai'], '—');
             const si       = getStatusInfo(tt);
 
+            const maXN     = getAny(item, ['maXacNhan', 'MaXacNhan'], '');
             const isWaitingConfirm = tt === 'Chờ xác nhận xuất';
+            const isWaitingDriver  = tt === 'Chờ tài xế xác nhận';
 
             const actionSection = isDone(tt)
                 ? `<div class="sc-actions">
@@ -92,14 +96,33 @@ document.addEventListener('DOMContentLoaded', () => {
                            <small>Bạn sẽ được thông báo khi hàng sẵn sàng.</small>
                        </div>
                    </div>`
+                : isWaitingDriver
+                ? `<div class="sc-actions">
+                       <div class="waiting-driver-box">
+                           <p class="otp-label"><i class="fa-solid fa-key"></i> Mã giao cho trưởng thôn:</p>
+                           <div class="otp-display">${escapeHtml(maXN || '——')}</div>
+                           <p style="font-size:0.78rem;color:#92400e;margin:0.5rem 0 0.75rem;">Trưởng thôn đã nhập mã. Tích xác nhận để hoàn tất.</p>
+                           <label class="driver-confirm-label">
+                               <input type="checkbox" class="driver-confirm-check" data-id="${escapeHtml(ma)}">
+                               <span>Tôi xác nhận đã giao hàng thành công</span>
+                           </label>
+                           <button class="btn-confirm-delivery" data-id="${escapeHtml(ma)}" disabled>
+                               <i class="fa-solid fa-handshake"></i> Xác Nhận Giao Hàng
+                           </button>
+                       </div>
+                   </div>`
                 : isApproved(tt)
                 ? `<div class="sc-actions">
                        <div class="approved-box">
-                           <i class="fa-solid fa-circle-check" style="color:#10b981;font-size:1.5rem;display:block;margin-bottom:0.4rem;"></i>
-                           <p style="color:#065f46;font-weight:700;font-size:0.85rem;margin:0 0 0.75rem;">Kho đã xác nhận xuất!</p>
-                           <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.75rem;">Cập nhật lộ trình của bạn</p>
-                           <button class="btn-update" onclick="openStatusModal('${escapeHtml(ma)}', '${escapeHtml(tt)}')">
-                               <i class="fa-solid fa-pen-to-square"></i> Cập Nhật
+                           <div class="otp-section">
+                               <p class="otp-label"><i class="fa-solid fa-key"></i> Đọc mã này cho trưởng thôn:</p>
+                               <div class="otp-display">${escapeHtml(maXN || '——')}</div>
+                               <p style="font-size:0.78rem;color:#92400e;margin:0.4rem 0 0.75rem;text-align:center;">
+                                   Trưởng thôn nhập mã vào hệ thống để xác nhận nhận hàng.
+                               </p>
+                           </div>
+                           <button class="btn-refresh-status" onclick="refreshSingle('${escapeHtml(ma)}')">
+                               <i class="fa-solid fa-rotate-right"></i> Kiểm tra xác nhận
                            </button>
                        </div>
                    </div>`
@@ -111,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
                    </div>`;
 
             return `
-            <div class="schedule-card${isWaitingConfirm ? ' card-waiting' : ''}${isApproved(tt) ? ' card-approved' : ''}">
+            <div class="schedule-card${isWaitingConfirm ? ' card-waiting' : ''}${isApproved(tt) ? ' card-approved' : ''}${isWaitingDriver ? ' card-waiting-driver' : ''}">
                 <div class="sc-header">
                     <span class="sc-id">
                         <i class="fa-solid fa-hashtag" style="color:var(--accent-cyan);margin-right:4px;"></i>
@@ -155,6 +178,46 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>`;
         }).join('');
     };
+
+    // ─── Refresh 1 phiếu cụ thể ─────────────────────
+    window.refreshSingle = async (id) => {
+        try {
+            const data = await window.CuuTroApi.requestJson(`/api/PhieuXuat/tai-xe/${encodeURIComponent(userId)}`);
+            allSchedule = Array.isArray(data) ? data : [];
+            renderSchedule();
+        } catch (_) {}
+    };
+
+    // ─── Event delegation cho nút xác nhận giao hàng ─
+    document.getElementById('schedule-list')?.addEventListener('change', (e) => {
+        const cb = e.target?.closest?.('.driver-confirm-check');
+        if (!cb) return;
+        const id = cb.getAttribute('data-id');
+        const btn = cb.closest('.waiting-driver-box')?.querySelector('.btn-confirm-delivery');
+        if (btn) btn.disabled = !cb.checked;
+    });
+
+    document.getElementById('schedule-list')?.addEventListener('click', async (e) => {
+        const btn = e.target?.closest?.('.btn-confirm-delivery');
+        if (!btn || btn.disabled) return;
+        const id = btn.getAttribute('data-id');
+        if (!id) return;
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Đang xử lý...';
+
+        try {
+            await window.CuuTroApi.requestJson(`/api/PhieuXuat/${encodeURIComponent(id)}/hoan-thanh-giao`, {
+                method: 'PATCH'
+            });
+            alert(`Xác nhận giao hàng phiếu ${id} thành công!`);
+            await loadSchedule();
+        } catch (err) {
+            alert(`Lỗi: ${err.message || ''}`);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-handshake"></i> Xác Nhận Giao Hàng';
+        }
+    });
 
     // ─── Load dữ liệu từ API ─────────────────────────
     const loadSchedule = async () => {
