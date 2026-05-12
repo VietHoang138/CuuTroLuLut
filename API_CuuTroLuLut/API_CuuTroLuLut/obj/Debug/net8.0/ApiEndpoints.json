@@ -1,0 +1,815 @@
+[
+  {
+    "ContainingType": "CuuTroAPI.Controllers.AuthController",
+    "Method": "Login",
+    "RelativePath": "api/Auth/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "login",
+        "Type": "CuuTroAPI.DTOs.LoginDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.DotCuuTroController",
+    "Method": "GetAll",
+    "RelativePath": "api/DotCuuTro",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.DotCuuTroController",
+    "Method": "Create",
+    "RelativePath": "api/DotCuuTro",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "CuuTroAPI.Controllers.DotCuuTroRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.DotCuuTroController",
+    "Method": "GetById",
+    "RelativePath": "api/DotCuuTro/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.DotCuuTroController",
+    "Method": "Update",
+    "RelativePath": "api/DotCuuTro/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "CuuTroAPI.Controllers.DotCuuTroRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.DotCuuTroController",
+    "Method": "Delete",
+    "RelativePath": "api/DotCuuTro/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.HangCuuTroController",
+    "Method": "GetAll",
+    "RelativePath": "api/HangCuuTro",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.HangCuuTroController",
+    "Method": "Create",
+    "RelativePath": "api/HangCuuTro",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "h",
+        "Type": "API_CuuTroLuLut.Models.HangCuuTro",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.LichSuCapPhatController",
+    "Method": "GetAll",
+    "RelativePath": "api/LichSuCapPhat",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.LichSuCapPhatController",
+    "Method": "UpdateTrangThai",
+    "RelativePath": "api/LichSuCapPhat/{id}/trang-thai",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "CapPhatTrangThaiRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.LichSuCapPhatController",
+    "Method": "GetByThon",
+    "RelativePath": "api/LichSuCapPhat/by-thon/{maThon}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maThon",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.NguoiDungController",
+    "Method": "GetAll",
+    "RelativePath": "api/NguoiDung",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.NguoiDungController",
+    "Method": "Create",
+    "RelativePath": "api/NguoiDung",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "nd",
+        "Type": "CuuTroAPI.Models.NguoiDung",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.NguoiDungController",
+    "Method": "GetById",
+    "RelativePath": "api/NguoiDung/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.NguoiDungController",
+    "Method": "Update",
+    "RelativePath": "api/NguoiDung/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "nd",
+        "Type": "CuuTroAPI.Models.NguoiDung",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.NguoiDungController",
+    "Method": "Delete",
+    "RelativePath": "api/NguoiDung/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.NguoiDungController",
+    "Method": "Lock",
+    "RelativePath": "api/NguoiDung/{id}/lock",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.NguoiDungController",
+    "Method": "Unlock",
+    "RelativePath": "api/NguoiDung/{id}/unlock",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.PhieuNhapController",
+    "Method": "GetAll",
+    "RelativePath": "api/PhieuNhap",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.PhieuNhapController",
+    "Method": "Create",
+    "RelativePath": "api/PhieuNhap",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "CuuTroAPI.Controllers.PhieuNhapRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.PhieuNhapController",
+    "Method": "GetById",
+    "RelativePath": "api/PhieuNhap/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.PhieuNhapController",
+    "Method": "UpdateTrangThai",
+    "RelativePath": "api/PhieuNhap/{id}/trang-thai",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "CuuTroAPI.Controllers.PhieuNhapTrangThaiRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.PhieuXuatController",
+    "Method": "GetAll",
+    "RelativePath": "api/PhieuXuat",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.PhieuXuatController",
+    "Method": "Create",
+    "RelativePath": "api/PhieuXuat",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "CuuTroAPI.Controllers.PhieuXuatRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.PhieuXuatController",
+    "Method": "GetById",
+    "RelativePath": "api/PhieuXuat/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.PhieuXuatController",
+    "Method": "NhanChuyen",
+    "RelativePath": "api/PhieuXuat/{id}/nhan-chuyen",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "CuuTroAPI.Controllers.NhanChuyenRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.PhieuXuatController",
+    "Method": "UpdateTrangThai",
+    "RelativePath": "api/PhieuXuat/{id}/trang-thai",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "CuuTroAPI.Controllers.PhieuXuatTrangThaiRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.PhieuXuatController",
+    "Method": "GetChoNhan",
+    "RelativePath": "api/PhieuXuat/cho-nhan",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.PhieuXuatController",
+    "Method": "GetByTaiXe",
+    "RelativePath": "api/PhieuXuat/tai-xe/{maNguoiDung}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maNguoiDung",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.PhuongXaController",
+    "Method": "GetAll",
+    "RelativePath": "api/PhuongXa",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maTinh",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.ThongKeController",
+    "Method": "GetHomeData",
+    "RelativePath": "api/ThongKe/home",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.ThongKeController",
+    "Method": "GetLatestCampaigns",
+    "RelativePath": "api/ThongKe/latest-campaigns",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.ThonToDanPhoController",
+    "Method": "GetAll",
+    "RelativePath": "api/ThonToDanPho",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maPhuongXa",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.ThonToDanPhoController",
+    "Method": "Create",
+    "RelativePath": "api/ThonToDanPho",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "CuuTroAPI.Controllers.ThonRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.ThonToDanPhoController",
+    "Method": "GetById",
+    "RelativePath": "api/ThonToDanPho/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.ThonToDanPhoController",
+    "Method": "Update",
+    "RelativePath": "api/ThonToDanPho/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "CuuTroAPI.Controllers.ThonRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.ThonToDanPhoController",
+    "Method": "Delete",
+    "RelativePath": "api/ThonToDanPho/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.TinhThanhPhoController",
+    "Method": "GetAll",
+    "RelativePath": "api/TinhThanhPho",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.UngHoController",
+    "Method": "GetAll",
+    "RelativePath": "api/UngHo",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.UngHoController",
+    "Method": "GetDetail",
+    "RelativePath": "api/UngHo/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.UngHoController",
+    "Method": "UpdateTrangThai",
+    "RelativePath": "api/UngHo/{id}/trang-thai",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "TrangThaiRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.UngHoController",
+    "Method": "GetAllAdmin",
+    "RelativePath": "api/UngHo/admin/all",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.UngHoController",
+    "Method": "GetByUser",
+    "RelativePath": "api/UngHo/by-user/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.UngHoController",
+    "Method": "CreateUngHo",
+    "RelativePath": "api/UngHo/create",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maDot",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.UngHoController",
+    "Method": "DuyetUngHo",
+    "RelativePath": "api/UngHo/duyet",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maUngHo",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "trangThai",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.UngHoController",
+    "Method": "ThemHang",
+    "RelativePath": "api/UngHo/them-hang",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maUngHo",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "maHang",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "soLuong",
+        "Type": "System.Double",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.VaiTroController",
+    "Method": "GetAll",
+    "RelativePath": "api/VaiTro",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.YeuCauCuuTroController",
+    "Method": "GetAll",
+    "RelativePath": "api/YeuCauCuuTro",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.YeuCauCuuTroController",
+    "Method": "Create",
+    "RelativePath": "api/YeuCauCuuTro",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "CuuTroAPI.Controllers.YeuCauRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.YeuCauCuuTroController",
+    "Method": "Delete",
+    "RelativePath": "api/YeuCauCuuTro/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CuuTroAPI.Controllers.YeuCauCuuTroController",
+    "Method": "UpdateTrangThai",
+    "RelativePath": "api/YeuCauCuuTro/{id}/trang-thai",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "CuuTroAPI.Controllers.YeuCauTrangThaiRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "API_CuuTroLuLut.Controllers.WeatherForecastController",
+    "Method": "Get",
+    "RelativePath": "WeatherForecast",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[API_CuuTroLuLut.WeatherForecast, API_CuuTroLuLut, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ],
+    "EndpointName": "GetWeatherForecast"
+  }
+]

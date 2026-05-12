@@ -136,7 +136,7 @@
 
 /* Shipment Details */
 .shipment-details {
-    flex: 0 0 300px;
+    flex: 0 0 400px;
     background: #f8fafc;
     border-radius: 12px;
     padding: 1.25rem;
@@ -381,4 +381,26 @@
 .summary-row strong, .summary-row span:last-child {
     text-align: right;
     color: var(--text-dark);
+}
+
+/* ===== Ô nhập mã xác nhận trong modal nhận chuyến ===== */
+.accept-otp-input {
+    width: 100%;
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.accept-otp-input:focus {
+    border-color: var(--accent-orange);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
 }

@@ -21,28 +21,69 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentExportId = null;
 
     // ─── Render bảng ────────────────────────────────────
+    const getBadge = (trangThai) => {
+        switch (trangThai) {
+            case 'Đã xuất kho':
+            case 'Đã hoàn thành':
+                return `<span class="status-badge status-done"><i class="fa-solid fa-circle-check"></i> ${escapeHtml(trangThai)}</span>`;
+            case 'Chờ xuất kho':
+                return `<span class="status-badge status-waiting"><i class="fa-solid fa-hourglass-half"></i> Chờ xuất kho</span>`;
+            case 'Chờ xác nhận xuất':
+                return `<span class="status-badge status-pending-confirm"><i class="fa-solid fa-bell"></i> Chờ xác nhận xuất</span>`;
+            case 'Đang vận chuyển':
+                return `<span class="status-badge status-transit"><i class="fa-solid fa-truck-fast"></i> Đang vận chuyển</span>`;
+            case 'Có vấn đề':
+                return `<span class="status-badge status-issue"><i class="fa-solid fa-triangle-exclamation"></i> Có vấn đề</span>`;
+            default:
+                return `<span class="status-badge status-waiting"><i class="fa-solid fa-clock"></i> ${escapeHtml(trangThai)}</span>`;
+        }
+    };
+
+    // Chỉ cho phép xuất khi tài xế đã nhận và đang chờ thủ kho xác nhận
+    const isEditable = (trangThai) =>
+        trangThai === 'Chờ xác nhận xuất';
+
     const renderTable = (list) => {
         if (!list.length) {
-            tbody.innerHTML = `<tr><td colspan="7" class="loading-cell">Chưa có phiếu xuất nào.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="loading-cell">Chưa có phiếu xuất nào.</td></tr>`;
             return;
         }
         tbody.innerHTML = list.map(item => {
-            const ma       = getAny(item, ['maPhieuXuat', 'MaPhieuXuat']);
-            const ngay     = getAny(item, ['ngayXuat', 'NgayXuat']);
-            const tenDot   = getAny(item, ['tenDot', 'TenDot'], '—');
-            const taiXe    = getAny(item, ['taiXe', 'TaiXe'], '—');
-            const sdtTaiXe = getAny(item, ['sdtTaiXe', 'SdtTaiXe'], '');
-            const hangHoa  = getAny(item, ['hangHoa', 'HangHoa'], '—');
+            const ma        = getAny(item, ['maPhieuXuat', 'MaPhieuXuat']);
+            const ngay      = getAny(item, ['ngayXuat', 'NgayXuat']);
+            const tenDot    = getAny(item, ['tenDot', 'TenDot'], '—');
+            const taiXe     = getAny(item, ['taiXe', 'TaiXe'], '—');
+            const sdtTaiXe  = getAny(item, ['sdtTaiXe', 'SdtTaiXe'], '');
+            const hangHoa   = getAny(item, ['hangHoa', 'HangHoa'], '—');
             const trangThai = getAny(item, ['trangThai', 'TrangThai'], 'Chờ xuất kho');
+            const maXN      = getAny(item, ['maXacNhan', 'MaXacNhan'], '');
 
-            const isDone = trangThai === 'Đã xuất kho';
-            const badge = isDone
-                ? `<span class="status-badge badge-completed"><i class="fa-solid fa-truck-fast"></i> Đã xuất kho</span>`
-                : `<span class="status-badge badge-pending"><i class="fa-solid fa-clock"></i> ${escapeHtml(trangThai)}</span>`;
+            // Cột mã xác nhận — chỉ hiện khi chưa có tài xế nhận (Chờ xuất kho)
+            const maXNCell = maXN
+                ? `<span class="ma-xn-badge" title="Mã xác nhận giao cho tài xế">${escapeHtml(maXN)}</span>`
+                : `<span style="color:var(--text-muted);font-size:0.8rem;">—</span>`;
 
-            const actionBtn = isDone
-                ? `<button class="btn btn-sm" style="background:#e2e8f0;color:#64748b;border:none;cursor:default;">Hoàn Tất</button>`
-                : `<button class="btn-action btn btn-sm" data-action="view" title="Xem & xác nhận xuất"><i class="fa-solid fa-eye"></i> Xuất Hàng</button>`;
+            const actionBtn = (() => {
+                if (isEditable(trangThai)) {
+                    // Chờ xác nhận xuất → nút Xuất Hàng
+                    return `<button class="btn-action btn btn-sm" data-action="view" title="Xác nhận xuất kho">
+                                <i class="fa-solid fa-file-export"></i> Xuất Hàng
+                            </button>`;
+                } else if (trangThai === 'Chờ xuất kho') {
+                    // Chưa có tài xế → chờ tài xế nhận, không có nút xuất
+                    return `<span style="color:var(--text-muted);font-size:0.8rem;"><i class="fa-solid fa-clock"></i> Chờ tài xế</span>`;
+                } else {
+                    // Đã xong
+                    return `<button class="btn btn-sm" style="background:#e2e8f0;color:#64748b;border:none;cursor:default;">
+                                <i class="fa-solid fa-check"></i> Hoàn Tất
+                            </button>`;
+                }
+            })();
+
+            // Nút xem chi tiết — luôn hiển thị
+            const viewBtn = `<button class="btn-view btn btn-sm" data-action="detail" title="Xem chi tiết hàng hóa">
+                                <i class="fa-solid fa-list"></i>
+                             </button>`;
 
             return `
             <tr data-id="${escapeHtml(ma)}">
@@ -53,29 +94,45 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div style="font-weight:600;">${escapeHtml(taiXe)}</div>
                     ${sdtTaiXe ? `<div style="font-size:0.8rem;color:var(--text-muted);">${escapeHtml(sdtTaiXe)}</div>` : ''}
                 </td>
-                <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(hangHoa)}">${escapeHtml(hangHoa)}</td>
-                <td>${badge}</td>
+                <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(hangHoa)}">${escapeHtml(hangHoa)}</td>
+                <td>${maXNCell}</td>
+                <td>${getBadge(trangThai)}</td>
                 <td>
-                    <div class="action-buttons">${actionBtn}</div>
+                    <div class="action-buttons">${actionBtn} ${viewBtn}</div>
                 </td>
             </tr>`;
         }).join('');
     };
 
     const updateStats = (list) => {
-        const doneToday = list.filter(x => getAny(x, ['trangThai', 'TrangThai']) === 'Đã xuất kho').length;
-        const pending   = list.filter(x => getAny(x, ['trangThai', 'TrangThai']) !== 'Đã xuất kho').length;
+        // Card 1: Chờ lấy hàng (Chờ xuất kho + Chờ xác nhận xuất)
+        const choLay = list.filter(x => {
+            const tt = getAny(x, ['trangThai', 'TrangThai']);
+            return tt === 'Chờ xuất kho' || tt === 'Chờ xác nhận xuất';
+        }).length;
+
+        // Card 2: Đã xuất / Đã hoàn thành
+        const daXuat = list.filter(x => {
+            const tt = getAny(x, ['trangThai', 'TrangThai']);
+            return tt === 'Đã xuất kho' || tt === 'Đã hoàn thành';
+        }).length;
+
+        // Card 3: Đang vận chuyển
+        const dangVanChuyen = list.filter(x =>
+            getAny(x, ['trangThai', 'TrangThai']) === 'Đang vận chuyển'
+        ).length;
+
         const el1 = document.querySelector('.stat-card:nth-child(1) .stat-number');
         const el2 = document.querySelector('.stat-card:nth-child(2) .stat-number');
         const el3 = document.querySelector('.stat-card:nth-child(3) .stat-number');
-        if (el1) el1.textContent = pending;
-        if (el2) el2.textContent = doneToday;
-        if (el3) el3.textContent = list.length;
+        if (el1) el1.textContent = choLay;
+        if (el2) el2.textContent = daXuat;
+        if (el3) el3.textContent = dangVanChuyen;
     };
 
     // ─── Load danh sách phiếu xuất ──────────────────────
     const loadExports = async () => {
-        tbody.innerHTML = `<tr><td colspan="7" class="loading-cell"><i class="fa-solid fa-circle-notch fa-spin"></i> Đang tải dữ liệu...</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="loading-cell"><i class="fa-solid fa-circle-notch fa-spin"></i> Đang tải dữ liệu...</td></tr>`;
         try {
             const data = await window.CuuTroApi.requestJson('/api/PhieuXuat');
             allExports = Array.isArray(data) ? data : [];
@@ -119,52 +176,34 @@ document.addEventListener('DOMContentLoaded', () => {
         ));
     });
 
-    // ─── Click "Xuất Hàng" → mở modal xác nhận ──────────
+    // ─── Click handler bảng ─────────────────────────────
     tbody.addEventListener('click', async (e) => {
-        const btn = e.target?.closest?.('button[data-action="view"]');
+        const btn = e.target?.closest?.('button[data-action]');
         if (!btn) return;
+        const action = btn.getAttribute('data-action');
         const id = btn.closest('tr[data-id]')?.getAttribute('data-id') || '';
         if (!id) return;
+
+        // ── Nút Xem Chi Tiết ──
+        if (action === 'detail') {
+            openDetailModal(id);
+            return;
+        }
+
+        // ── Nút Xuất Hàng ──
+        if (action !== 'view') return;
 
         const item = allExports.find(x => getAny(x, ['maPhieuXuat', 'MaPhieuXuat']) === id);
         if (!item) return;
         currentExportId = id;
-
-        // Điền thông tin tài xế
         document.getElementById('modal-driver-name').textContent  = getAny(item, ['taiXe', 'TaiXe'], '—');
         document.getElementById('modal-driver-phone').textContent = getAny(item, ['sdtTaiXe', 'SdtTaiXe'], '—');
         document.getElementById('modal-driver-plate').textContent = getAny(item, ['bienSoXe', 'BienSoXe'], '—');
-
-        // Hiển thị mã xác nhận của phiếu này
-        const maXN = getAny(item, ['maXacNhan', 'MaXacNhan'], '');
-        const maBox = document.getElementById('phieu-ma-xacnhan-box');
-        const maVal = document.getElementById('phieu-ma-xacnhan-value');
-        if (maBox && maVal) {
-            if (maXN) {
-                maVal.textContent = maXN;
-                maBox.style.display = 'block';
-            } else {
-                maBox.style.display = 'none';
-            }
-        }
-
-        // Gắn nút copy mã
-        document.getElementById('btn-copy-ma')?.addEventListener('click', () => {
-            navigator.clipboard?.writeText(maXN).then(() => {
-                const btn = document.getElementById('btn-copy-ma');
-                if (btn) { btn.innerHTML = '<i class="fa-solid fa-check"></i>'; setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-copy"></i>'; }, 1500); }
-            });
-        });
 
         // Reset checkbox
         const verifyCheck = document.getElementById('verify-driver-export');
         if (verifyCheck) verifyCheck.checked = false;
         document.getElementById('btn-confirm-export').disabled = true;
-
-        // Reset ô OTP
-        const otpInput = document.getElementById('otp-input');
-        if (otpInput) otpInput.value = '';
-        showOtpStatus('none', '');
 
         // Load chi tiết hàng hóa
         const goodsList = document.getElementById('modal-goods-list');
@@ -204,83 +243,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function checkExportValidity() {
-        const verifyDriver  = document.getElementById('verify-driver-export')?.checked;
-        const checkers      = [...document.querySelectorAll('.item-checker')];
-        const allChecked    = checkers.length > 0 && checkers.every(c => c.checked);
-        const otpVal        = document.getElementById('otp-input')?.value?.trim() || '';
-        const otpOk         = otpVal.length === 6;
-        document.getElementById('btn-confirm-export').disabled = !(verifyDriver && allChecked && otpOk);
-    }
-
-    // Hiển thị trạng thái ô OTP
-    function showOtpStatus(type, msg) {
-        const icon  = document.getElementById('otp-status-icon');
-        const hint  = document.getElementById('otp-hint');
-        const input = document.getElementById('otp-input');
-        if (!icon || !hint || !input) return;
-
-        if (type === 'ok') {
-            icon.innerHTML  = '<i class="fa-solid fa-circle-check" style="color:#10b981;"></i>';
-            hint.style.color = '#10b981';
-            hint.textContent = 'Mã hợp lệ — đủ 6 ký tự.';
-            input.style.borderColor = '#10b981';
-        } else if (type === 'error') {
-            icon.innerHTML  = '<i class="fa-solid fa-circle-xmark" style="color:#dc2626;"></i>';
-            hint.style.color = '#dc2626';
-            hint.textContent = msg || 'Mã không đúng.';
-            input.style.borderColor = '#dc2626';
-        } else {
-            icon.innerHTML  = '';
-            hint.textContent = '';
-            input.style.borderColor = '';
-        }
+        const verifyDriver = document.getElementById('verify-driver-export')?.checked;
+        const checkers     = [...document.querySelectorAll('.item-checker')];
+        const allChecked   = checkers.length > 0 && checkers.every(c => c.checked);
+        document.getElementById('btn-confirm-export').disabled = !(verifyDriver && allChecked);
     }
 
     document.getElementById('verify-driver-export')?.addEventListener('change', checkExportValidity);
 
-    // Validate OTP realtime khi gõ
-    document.getElementById('otp-input')?.addEventListener('input', (e) => {
-        e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-        const len = e.target.value.trim().length;
-        if (len === 0)       showOtpStatus('none', '');
-        else if (len < 6)    showOtpStatus('error', `Còn thiếu ${6 - len} ký tự.`);
-        else                 showOtpStatus('ok', '');
-        checkExportValidity();
-    });
-
     // ─── Nút Xác Nhận Đã Xuất Kho ───────────────────────
     document.getElementById('btn-confirm-export')?.addEventListener('click', async () => {
         if (!currentExportId) return;
-
-        const otpInput = document.getElementById('otp-input');
-        const maXacNhan = otpInput?.value?.trim().toUpperCase() || '';
-
-        if (maXacNhan.length !== 6) {
-            otpInput?.focus();
-            showOtpStatus('error', 'Mã xác nhận phải đủ 6 ký tự.');
-            return;
-        }
-
         const btn = document.getElementById('btn-confirm-export');
         btn.disabled = true;
         btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Đang xử lý...';
         try {
             await window.CuuTroApi.requestJson(`/api/PhieuXuat/${encodeURIComponent(currentExportId)}/trang-thai`, {
                 method: 'PATCH',
-                body: JSON.stringify({ TrangThai: 'Đã xuất kho', MaXacNhan: maXacNhan })
+                body: JSON.stringify({ TrangThai: 'Đang vận chuyển' })
             });
             alert(`Xác nhận xuất kho phiếu ${currentExportId} thành công!`);
             closeConfirmModal();
             currentExportId = null;
             await loadExports();
         } catch (err) {
-            // Nếu API trả lỗi mã sai → hiển thị ngay trên ô nhập
-            const msg = err.message || '';
-            if (msg.toLowerCase().includes('mã xác nhận') || msg.toLowerCase().includes('không đúng')) {
-                showOtpStatus('error', msg);
-            } else {
-                alert(`Lỗi: ${msg}`);
-            }
+            alert(`Lỗi: ${err.message || ''}`);
             btn.disabled = false;
         } finally {
             btn.innerHTML = '<i class="fa-solid fa-file-export"></i> Xác Nhận Đã Xuất Kho';
@@ -297,6 +284,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.closeConfirmModal = () => {
         const modal = document.getElementById('confirm-export-modal');
+        modal.style.opacity = '0';
+        modal.querySelector('.modal-content').style.transform = 'scale(0.95)';
+        setTimeout(() => { modal.style.display = 'none'; }, 300);
+    };
+
+    // ─── Modal xem chi tiết hàng hóa ────────────────────
+    async function openDetailModal(id) {
+        const item = allExports.find(x => getAny(x, ['maPhieuXuat', 'MaPhieuXuat']) === id);
+        const modal = document.getElementById('detail-modal');
+        if (!modal) return;
+
+        // Điền header
+        document.getElementById('detail-modal-id').textContent    = id;
+        document.getElementById('detail-modal-dot').textContent   = getAny(item, ['tenDot', 'TenDot'], '—');
+        document.getElementById('detail-modal-taixe').textContent = getAny(item, ['taiXe', 'TaiXe'], '—');
+        document.getElementById('detail-modal-sdt').textContent   = getAny(item, ['sdtTaiXe', 'SdtTaiXe'], '—');
+        document.getElementById('detail-modal-bsx').textContent   = getAny(item, ['bienSoXe', 'BienSoXe'], '—');
+        document.getElementById('detail-modal-tt').innerHTML      = getBadge(getAny(item, ['trangThai', 'TrangThai'], '—'));
+
+        const tbody2 = document.getElementById('detail-goods-tbody');
+        tbody2.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);"><i class="fa-solid fa-circle-notch fa-spin"></i> Đang tải...</td></tr>';
+
+        modal.style.display = 'flex';
+        setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
+
+        try {
+            const details = await window.CuuTroApi.requestJson(`/api/PhieuXuat/${encodeURIComponent(id)}`);
+            if (Array.isArray(details) && details.length) {
+                tbody2.innerHTML = details.map(d => `
+                    <tr>
+                        <td>${escapeHtml(getAny(d, ['tenHang', 'TenHang']))}</td>
+                        <td style="font-weight:700;color:var(--accent-orange);text-align:center;">${escapeHtml(getAny(d, ['soLuong', 'SoLuong']))}</td>
+                        <td style="text-align:center;">${escapeHtml(getAny(d, ['donViTinh', 'DonViTinh']))}</td>
+                    </tr>`).join('');
+            } else {
+                tbody2.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">Không có chi tiết hàng hóa.</td></tr>';
+            }
+        } catch (err) {
+            tbody2.innerHTML = `<tr><td colspan="3" style="text-align:center;color:#dc2626;">Lỗi: ${escapeHtml(err.message)}</td></tr>`;
+        }
+    }
+
+    window.closeDetailModal = () => {
+        const modal = document.getElementById('detail-modal');
+        if (!modal) return;
         modal.style.opacity = '0';
         modal.querySelector('.modal-content').style.transform = 'scale(0.95)';
         setTimeout(() => { modal.style.display = 'none'; }, 300);

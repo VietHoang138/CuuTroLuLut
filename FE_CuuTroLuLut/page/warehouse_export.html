@@ -73,7 +73,7 @@
                         </div>
                         <div class="stat-info">
                             <h3>Chờ Lấy Hàng</h3>
-                            <p class="stat-number">6</p>
+                            <p class="stat-number">0</p>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -81,8 +81,8 @@
                             <i class="fa-solid fa-clipboard-check"></i>
                         </div>
                         <div class="stat-info">
-                            <h3>Đã Xuất Hôm Nay</h3>
-                            <p class="stat-number">8</p>
+                            <h3>Đã Xuất Kho</h3>
+                            <p class="stat-number">0</p>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -90,8 +90,8 @@
                             <i class="fa-solid fa-truck-moving"></i>
                         </div>
                         <div class="stat-info">
-                            <h3>Xe Đã Khởi Hành</h3>
-                            <p class="stat-number">15</p>
+                            <h3>Đang Vận Chuyển</h3>
+                            <p class="stat-number">0</p>
                         </div>
                     </div>
                 </div>
@@ -110,10 +110,11 @@
                             <thead>
                                 <tr>
                                     <th>Mã Phiếu</th>
-                                    <th>Thời Gian Dự Kiến</th>
-                                    <th>Đích Đến (Vùng Lũ)</th>
+                                    <th>Thời Gian</th>
+                                    <th>Đợt Cứu Trợ</th>
                                     <th>Tài Xế Vận Chuyển</th>
                                     <th>Hàng Hóa Xuất</th>
+                                    <th>Mã XN</th>
                                     <th>Trạng Thái</th>
                                     <th>Thao Tác</th>
                                 </tr>
@@ -177,36 +178,6 @@
                     <ul class="checklist-items" id="modal-goods-list">
                         <!-- Populated by JS -->
                     </ul>
-                </div>
-
-                <div class="form-group" style="margin-top: 1.5rem;">
-                    <label>Mã Xác Nhận Từ Tài Xế <span style="color:#dc2626;font-weight:700;">*</span></label>
-
-                    <!-- Mã của phiếu này — hiển thị để thủ kho đọc cho tài xế -->
-                    <div id="phieu-ma-xacnhan-box" class="ma-xacnhan-display" style="display:none;">
-                        <div class="ma-xacnhan-label">
-                            <i class="fa-solid fa-key"></i> Mã xác nhận của phiếu này (giao cho tài xế):
-                        </div>
-                        <div class="ma-xacnhan-value-row">
-                            <span id="phieu-ma-xacnhan-value" class="ma-xacnhan-value">——</span>
-                            <button type="button" class="btn-copy-ma" id="btn-copy-ma" title="Sao chép mã">
-                                <i class="fa-solid fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:0.5rem;margin-top:0.75rem;">
-                        <i class="fa-solid fa-circle-info" style="color:#3b82f6;"></i>
-                        Tài xế đọc lại mã trên cho bạn. Nhập đúng mã mới có thể xác nhận xuất kho.
-                    </p>
-                    <div style="position:relative;">
-                        <input type="text" id="otp-input" class="form-control" 
-                               placeholder="Nhập mã 6 ký tự từ tài xế..."
-                               maxlength="6"
-                               style="text-transform:uppercase;letter-spacing:0.25em;font-size:1.1rem;font-weight:700;padding-right:2.5rem;">
-                        <span id="otp-status-icon" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);font-size:1.1rem;"></span>
-                    </div>
-                    <p id="otp-hint" style="font-size:0.82rem;margin-top:0.4rem;color:var(--text-muted);"></p>
                 </div>
             </div>
             
@@ -310,6 +281,66 @@
                 <button type="button" class="btn btn-primary" onclick="closeMaXacNhanModal()">
                     <i class="fa-solid fa-check"></i> Đã Thông Báo Tài Xế
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Xem Chi Tiết Phiếu Xuất -->
+    <div id="detail-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fa-solid fa-list" style="color:var(--accent-cyan);margin-right:0.5rem;"></i>
+                    Chi Tiết Phiếu Xuất — <span id="detail-modal-id" style="color:var(--accent-orange);"></span>
+                </h3>
+                <button class="close-btn" onclick="closeDetailModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <!-- Thông tin phiếu -->
+                <div class="detail-info-grid">
+                    <div class="detail-info-item">
+                        <span class="detail-info-label"><i class="fa-solid fa-layer-group"></i> Đợt cứu trợ</span>
+                        <span id="detail-modal-dot" class="detail-info-value">—</span>
+                    </div>
+                    <div class="detail-info-item">
+                        <span class="detail-info-label"><i class="fa-solid fa-user"></i> Tài xế</span>
+                        <span id="detail-modal-taixe" class="detail-info-value">—</span>
+                    </div>
+                    <div class="detail-info-item">
+                        <span class="detail-info-label"><i class="fa-solid fa-phone"></i> SĐT</span>
+                        <span id="detail-modal-sdt" class="detail-info-value">—</span>
+                    </div>
+                    <div class="detail-info-item">
+                        <span class="detail-info-label"><i class="fa-solid fa-truck"></i> Biển số xe</span>
+                        <span id="detail-modal-bsx" class="detail-info-value">—</span>
+                    </div>
+                    <div class="detail-info-item">
+                        <span class="detail-info-label"><i class="fa-solid fa-circle-dot"></i> Trạng thái</span>
+                        <span id="detail-modal-tt">—</span>
+                    </div>
+                </div>
+
+                <!-- Bảng hàng hóa -->
+                <h4 style="margin:1.25rem 0 0.75rem;color:var(--text-dark);font-size:1rem;">
+                    <i class="fa-solid fa-boxes-stacked" style="color:var(--accent-orange);"></i> Danh Sách Hàng Hóa
+                </h4>
+                <div class="table-responsive">
+                    <table class="data-table" style="font-size:0.9rem;">
+                        <thead>
+                            <tr>
+                                <th>Mặt Hàng</th>
+                                <th style="text-align:center;">Số Lượng</th>
+                                <th style="text-align:center;">Đơn Vị</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detail-goods-tbody">
+                            <tr><td colspan="3" style="text-align:center;color:var(--text-muted);">Đang tải...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-outline" onclick="closeDetailModal()">Đóng</button>
             </div>
         </div>
     </div>

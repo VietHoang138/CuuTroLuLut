@@ -71,11 +71,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Đợt cứu trợ:</span>
-                        <span class="detail-value" style="max-width:150px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(tenDot)}">${escapeHtml(tenDot)}</span>
+                        <span class="detail-value" style="max-width:400px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(tenDot)}">${escapeHtml(tenDot)}</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Hàng hóa:</span>
-                        <span class="detail-value" style="max-width:150px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(hangHoa)}">${escapeHtml(hangHoa)}</span>
+                        <span class="detail-value" style="max-width:400px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeHtml(hangHoa)}">${escapeHtml(hangHoa)}</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Tổng số lượng:</span>
@@ -189,11 +189,18 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="summary-row"><span>Ngày tạo:</span><span>${escapeHtml(getAny(shp, ['ngayXuat', 'NgayXuat']))}</span></div>
         `;
 
+        // Reset ô OTP
+        const otpInput = document.getElementById('accept-otp-input');
+        if (otpInput) otpInput.value = '';
+        setOtpStatus('none', '');
+        document.getElementById('confirm-accept-btn').disabled = true;
+
         const modal = document.getElementById('accept-modal');
         modal.style.display = 'flex';
         setTimeout(() => {
             modal.style.opacity = '1';
             modal.querySelector('.modal-content').style.transform = 'scale(1)';
+            otpInput?.focus();
         }, 10);
     };
 
@@ -204,26 +211,76 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => { modal.style.display = 'none'; selectedId = null; }, 300);
     };
 
+    // Validate OTP realtime
+    function setOtpStatus(type, msg) {
+        const icon  = document.getElementById('accept-otp-icon');
+        const hint  = document.getElementById('accept-otp-hint');
+        const input = document.getElementById('accept-otp-input');
+        if (!icon || !hint || !input) return;
+
+        if (type === 'ok') {
+            icon.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#10b981;"></i>';
+            hint.style.color = '#10b981';
+            hint.textContent = 'Mã hợp lệ — đủ 6 ký tự.';
+            input.style.borderColor = '#10b981';
+        } else if (type === 'error') {
+            icon.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color:#dc2626;"></i>';
+            hint.style.color = '#dc2626';
+            hint.textContent = msg || 'Mã không đúng.';
+            input.style.borderColor = '#dc2626';
+        } else {
+            icon.innerHTML = '';
+            hint.textContent = '';
+            input.style.borderColor = '';
+        }
+    }
+
+    document.getElementById('accept-otp-input')?.addEventListener('input', (e) => {
+        e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        const len = e.target.value.trim().length;
+        if (len === 0)    setOtpStatus('none', '');
+        else if (len < 6) setOtpStatus('error', `Còn thiếu ${6 - len} ký tự.`);
+        else              setOtpStatus('ok', '');
+        document.getElementById('confirm-accept-btn').disabled = len < 6;
+    });
+
     document.getElementById('confirm-accept-btn')?.addEventListener('click', async () => {
         if (!selectedId) return;
         if (!userId) { alert('Không xác định được tài khoản. Vui lòng đăng nhập lại.'); return; }
 
+        const maXacNhan = document.getElementById('accept-otp-input')?.value?.trim().toUpperCase() || '';
+        if (maXacNhan.length !== 6) {
+            setOtpStatus('error', 'Vui lòng nhập đủ 6 ký tự.');
+            return;
+        }
+
         const btn = document.getElementById('confirm-accept-btn');
         btn.disabled = true;
-        btn.textContent = 'Đang xử lý...';
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Đang xử lý...';
 
         try {
             await window.CuuTroApi.requestJson(`/api/PhieuXuat/${encodeURIComponent(selectedId)}/nhan-chuyen`, {
                 method: 'PATCH',
-                body: JSON.stringify({ MaNguoiVanChuyen: userId })
+                body: JSON.stringify({ MaNguoiVanChuyen: userId, MaXacNhan: maXacNhan })
             });
             closeAcceptModal();
-            alert(`Nhận chuyến hàng ${selectedId} thành công! Chuyển đến trang lịch trình.`);
-            window.location.href = 'transporter_schedule.html';
+
+            // Hiển thị thông báo chờ thủ kho xác nhận
+            alert(`✅ Đã gửi yêu cầu nhận chuyến ${selectedId} thành công!\n\n⏳ Vui lòng chờ thủ kho xác nhận xuất hàng. Sau khi được xác nhận, chuyến hàng sẽ chuyển sang trạng thái "Đang vận chuyển".`);
+            await loadShipments();
         } catch (err) {
-            alert(`Lỗi: ${err.message || ''}`);
+            const msg = err.message || '';
+            if (msg.toLowerCase().includes('mã xác nhận') || msg.toLowerCase().includes('không đúng')) {
+                setOtpStatus('error', msg);
+            } else {
+                alert(`Lỗi: ${msg}`);
+            }
             btn.disabled = false;
-            btn.textContent = 'Xác Nhận Nhận Chuyến';
+        } finally {
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Xác Nhận Nhận Chuyến';
+            // Re-check validity
+            const len = document.getElementById('accept-otp-input')?.value?.trim().length || 0;
+            document.getElementById('confirm-accept-btn').disabled = len < 6;
         }
     });
 
