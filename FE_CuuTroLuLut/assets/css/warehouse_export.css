@@ -689,3 +689,55 @@
     0%, 100% { opacity: 1; }
     50%       { opacity: 0.65; }
 }
+
+/* ===== Nút Xem Chi Tiết ===== */
+.btn-view {
+    background: #f1f5f9;
+    color: var(--accent-cyan);
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 0.4rem 0.6rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.btn-view:hover {
+    background: #e0f2fe;
+    border-color: var(--accent-cyan);
+}
+
+/* ===== Modal Chi Tiết ===== */
+.detail-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+}
+
+.detail-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.detail-info-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.detail-info-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}

@@ -486,5 +486,5 @@ INSERT INTO LichSuTrangThaiPhieuXuat (MaPhieuXuat, TrangThai) VALUES
 ('PX1',N'Đã hoàn thành'),
 ('PX2',N'Đã hoàn thành'),
 ('PX3',N'Đã hoàn thành'),
-('PX4',N'Có vấn đề'),
+('PX4',N'Đã hoàn thành'),
 ('PX5',N'Đã hoàn thành')

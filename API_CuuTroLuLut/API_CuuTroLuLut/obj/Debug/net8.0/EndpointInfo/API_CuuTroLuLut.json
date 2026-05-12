@@ -1423,6 +1423,10 @@
           "maNguoiVanChuyen": {
             "type": "string",
             "nullable": true
+          },
+          "maXacNhan": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false

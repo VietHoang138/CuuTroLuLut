@@ -63,9 +63,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? `<span class="ma-xn-badge" title="Mã xác nhận giao cho tài xế">${escapeHtml(maXN)}</span>`
                 : `<span style="color:var(--text-muted);font-size:0.8rem;">—</span>`;
 
-            const actionBtn = isEditable(trangThai)
-                ? `<button class="btn-action btn btn-sm" data-action="view" title="Xem & xác nhận xuất"><i class="fa-solid fa-eye"></i> Xuất Hàng</button>`
-                : `<button class="btn btn-sm" style="background:#e2e8f0;color:#64748b;border:none;cursor:default;"><i class="fa-solid fa-check"></i> Hoàn Tất</button>`;
+            const actionBtn = (() => {
+                if (isEditable(trangThai)) {
+                    // Chờ xác nhận xuất → nút Xuất Hàng
+                    return `<button class="btn-action btn btn-sm" data-action="view" title="Xác nhận xuất kho">
+                                <i class="fa-solid fa-file-export"></i> Xuất Hàng
+                            </button>`;
+                } else if (trangThai === 'Chờ xuất kho') {
+                    // Chưa có tài xế → chờ tài xế nhận, không có nút xuất
+                    return `<span style="color:var(--text-muted);font-size:0.8rem;"><i class="fa-solid fa-clock"></i> Chờ tài xế</span>`;
+                } else {
+                    // Đã xong
+                    return `<button class="btn btn-sm" style="background:#e2e8f0;color:#64748b;border:none;cursor:default;">
+                                <i class="fa-solid fa-check"></i> Hoàn Tất
+                            </button>`;
+                }
+            })();
+
+            // Nút xem chi tiết — luôn hiển thị
+            const viewBtn = `<button class="btn-view btn btn-sm" data-action="detail" title="Xem chi tiết hàng hóa">
+                                <i class="fa-solid fa-list"></i>
+                             </button>`;
 
             return `
             <tr data-id="${escapeHtml(ma)}">
@@ -80,21 +98,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${maXNCell}</td>
                 <td>${getBadge(trangThai)}</td>
                 <td>
-                    <div class="action-buttons">${actionBtn}</div>
+                    <div class="action-buttons">${actionBtn} ${viewBtn}</div>
                 </td>
             </tr>`;
         }).join('');
     };
 
     const updateStats = (list) => {
-        const doneToday = list.filter(x => getAny(x, ['trangThai', 'TrangThai']) === 'Đã xuất kho').length;
-        const pending   = list.filter(x => getAny(x, ['trangThai', 'TrangThai']) !== 'Đã xuất kho').length;
+        // Card 1: Chờ lấy hàng (Chờ xuất kho + Chờ xác nhận xuất)
+        const choLay = list.filter(x => {
+            const tt = getAny(x, ['trangThai', 'TrangThai']);
+            return tt === 'Chờ xuất kho' || tt === 'Chờ xác nhận xuất';
+        }).length;
+
+        // Card 2: Đã xuất / Đã hoàn thành
+        const daXuat = list.filter(x => {
+            const tt = getAny(x, ['trangThai', 'TrangThai']);
+            return tt === 'Đã xuất kho' || tt === 'Đã hoàn thành';
+        }).length;
+
+        // Card 3: Đang vận chuyển
+        const dangVanChuyen = list.filter(x =>
+            getAny(x, ['trangThai', 'TrangThai']) === 'Đang vận chuyển'
+        ).length;
+
         const el1 = document.querySelector('.stat-card:nth-child(1) .stat-number');
         const el2 = document.querySelector('.stat-card:nth-child(2) .stat-number');
         const el3 = document.querySelector('.stat-card:nth-child(3) .stat-number');
-        if (el1) el1.textContent = pending;
-        if (el2) el2.textContent = doneToday;
-        if (el3) el3.textContent = list.length;
+        if (el1) el1.textContent = choLay;
+        if (el2) el2.textContent = daXuat;
+        if (el3) el3.textContent = dangVanChuyen;
     };
 
     // ─── Load danh sách phiếu xuất ──────────────────────
@@ -143,18 +176,26 @@ document.addEventListener('DOMContentLoaded', () => {
         ));
     });
 
-    // ─── Click "Xuất Hàng" → mở modal xác nhận ──────────
+    // ─── Click handler bảng ─────────────────────────────
     tbody.addEventListener('click', async (e) => {
-        const btn = e.target?.closest?.('button[data-action="view"]');
+        const btn = e.target?.closest?.('button[data-action]');
         if (!btn) return;
+        const action = btn.getAttribute('data-action');
         const id = btn.closest('tr[data-id]')?.getAttribute('data-id') || '';
         if (!id) return;
+
+        // ── Nút Xem Chi Tiết ──
+        if (action === 'detail') {
+            openDetailModal(id);
+            return;
+        }
+
+        // ── Nút Xuất Hàng ──
+        if (action !== 'view') return;
 
         const item = allExports.find(x => getAny(x, ['maPhieuXuat', 'MaPhieuXuat']) === id);
         if (!item) return;
         currentExportId = id;
-
-        // Điền thông tin tài xế
         document.getElementById('modal-driver-name').textContent  = getAny(item, ['taiXe', 'TaiXe'], '—');
         document.getElementById('modal-driver-phone').textContent = getAny(item, ['sdtTaiXe', 'SdtTaiXe'], '—');
         document.getElementById('modal-driver-plate').textContent = getAny(item, ['bienSoXe', 'BienSoXe'], '—');
@@ -243,6 +284,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.closeConfirmModal = () => {
         const modal = document.getElementById('confirm-export-modal');
+        modal.style.opacity = '0';
+        modal.querySelector('.modal-content').style.transform = 'scale(0.95)';
+        setTimeout(() => { modal.style.display = 'none'; }, 300);
+    };
+
+    // ─── Modal xem chi tiết hàng hóa ────────────────────
+    async function openDetailModal(id) {
+        const item = allExports.find(x => getAny(x, ['maPhieuXuat', 'MaPhieuXuat']) === id);
+        const modal = document.getElementById('detail-modal');
+        if (!modal) return;
+
+        // Điền header
+        document.getElementById('detail-modal-id').textContent    = id;
+        document.getElementById('detail-modal-dot').textContent   = getAny(item, ['tenDot', 'TenDot'], '—');
+        document.getElementById('detail-modal-taixe').textContent = getAny(item, ['taiXe', 'TaiXe'], '—');
+        document.getElementById('detail-modal-sdt').textContent   = getAny(item, ['sdtTaiXe', 'SdtTaiXe'], '—');
+        document.getElementById('detail-modal-bsx').textContent   = getAny(item, ['bienSoXe', 'BienSoXe'], '—');
+        document.getElementById('detail-modal-tt').innerHTML      = getBadge(getAny(item, ['trangThai', 'TrangThai'], '—'));
+
+        const tbody2 = document.getElementById('detail-goods-tbody');
+        tbody2.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);"><i class="fa-solid fa-circle-notch fa-spin"></i> Đang tải...</td></tr>';
+
+        modal.style.display = 'flex';
+        setTimeout(() => { modal.style.opacity = '1'; modal.querySelector('.modal-content').style.transform = 'scale(1)'; }, 10);
+
+        try {
+            const details = await window.CuuTroApi.requestJson(`/api/PhieuXuat/${encodeURIComponent(id)}`);
+            if (Array.isArray(details) && details.length) {
+                tbody2.innerHTML = details.map(d => `
+                    <tr>
+                        <td>${escapeHtml(getAny(d, ['tenHang', 'TenHang']))}</td>
+                        <td style="font-weight:700;color:var(--accent-orange);text-align:center;">${escapeHtml(getAny(d, ['soLuong', 'SoLuong']))}</td>
+                        <td style="text-align:center;">${escapeHtml(getAny(d, ['donViTinh', 'DonViTinh']))}</td>
+                    </tr>`).join('');
+            } else {
+                tbody2.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">Không có chi tiết hàng hóa.</td></tr>';
+            }
+        } catch (err) {
+            tbody2.innerHTML = `<tr><td colspan="3" style="text-align:center;color:#dc2626;">Lỗi: ${escapeHtml(err.message)}</td></tr>`;
+        }
+    }
+
+    window.closeDetailModal = () => {
+        const modal = document.getElementById('detail-modal');
+        if (!modal) return;
         modal.style.opacity = '0';
         modal.querySelector('.modal-content').style.transform = 'scale(0.95)';
         setTimeout(() => { modal.style.display = 'none'; }, 300);
